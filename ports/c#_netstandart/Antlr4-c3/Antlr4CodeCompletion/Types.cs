@@ -5,7 +5,7 @@
 
 using System.Collections.Generic;
 
-namespace Antlr4CodeCompletion.Core;
+namespace Antlr4CodeCompletion;
 
 /// <summary>
 /// Visibility (aka. accessibility) of a symbol member.

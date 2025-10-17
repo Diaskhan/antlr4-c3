@@ -5,7 +5,7 @@
 
 using System;
 
-namespace Antlr4CodeCompletion.Core;
+namespace Antlr4CodeCompletion;
 
 /// <summary>
 /// Represents an error that occurs when a duplicate symbol is found.

@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Antlr4CodeCompletion.Core;
+namespace Antlr4CodeCompletion;
 
 public static class Utils
 {

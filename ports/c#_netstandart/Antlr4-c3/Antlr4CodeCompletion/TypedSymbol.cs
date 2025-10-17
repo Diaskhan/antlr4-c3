@@ -3,8 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-
-namespace Antlr4CodeCompletion.Core;
+namespace Antlr4CodeCompletion;
 
 /// <summary>
 /// A symbol with an attached type (variables, fields etc.).
