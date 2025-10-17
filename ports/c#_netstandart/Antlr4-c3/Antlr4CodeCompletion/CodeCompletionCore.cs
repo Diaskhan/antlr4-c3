@@ -5,6 +5,7 @@
 
 using Antlr4.Runtime;
 using Antlr4.Runtime.Atn;
+using Antlr4.Runtime.Misc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -263,12 +264,12 @@ public class CodeCompletionCore
     {
         var result = new List<int>();
         var pipeline = new Stack<ATNState>();
-        pipeline.Push(transition.Target);
+        pipeline.Push(transition.target);
 
         while (pipeline.Count > 0)
         {
             var state = pipeline.Pop();
-            foreach (var outgoing in state.transitions)
+            foreach (var outgoing in state.TransitionsArray)
             {
                 if (outgoing.TransitionType == TransitionType.ATOM)
                 {
@@ -278,12 +279,12 @@ public class CodeCompletionCore
                         if (list.Count == 1 && !IgnoredTokens.Contains(list[0]))
                         {
                             result.Add(list[0]);
-                            pipeline.Push(outgoing.Target);
+                            pipeline.Push(outgoing.target);
                         }
                     }
                     else
                     {
-                        pipeline.Push(outgoing.Target);
+                        pipeline.Push(outgoing.target);
                     }
                 }
             }
@@ -319,20 +320,20 @@ public class CodeCompletionCore
         }
 
         bool isExhaustive = true;
-        foreach (var transition in s.transitions)
+        foreach (var transition in s.TransitionsArray)
         {
             if (transition.TransitionType == TransitionType.RULE)
             {
                 var ruleTransition = (RuleTransition)transition;
-                if (ruleStack.Contains(ruleTransition.RuleIndex)) continue;
+                if (ruleStack.Contains(ruleTransition.ruleIndex)) continue;
 
-                ruleStack.Add(ruleTransition.RuleIndex);
-                bool ruleFollowSetsIsExhaustive = CollectFollowSets(transition.Target, stopState, followSets, stateStack, ruleStack);
+                ruleStack.Add(ruleTransition.ruleIndex);
+                bool ruleFollowSetsIsExhaustive = CollectFollowSets(transition.target, stopState, followSets, stateStack, ruleStack);
                 ruleStack.RemoveAt(ruleStack.Count - 1);
 
                 if (!ruleFollowSetsIsExhaustive)
                 {
-                    bool nextStateFollowSetsIsExhaustive = CollectFollowSets(ruleTransition.FollowState, stopState, followSets, stateStack, ruleStack);
+                    bool nextStateFollowSetsIsExhaustive = CollectFollowSets(ruleTransition.followState, stopState, followSets, stateStack, ruleStack);
                     isExhaustive &= nextStateFollowSetsIsExhaustive;
                 }
             }
@@ -340,12 +341,12 @@ public class CodeCompletionCore
             {
                 if (CheckPredicate((PredicateTransition)transition))
                 {
-                    isExhaustive &= CollectFollowSets(transition.Target, stopState, followSets, stateStack, ruleStack);
+                    isExhaustive &= CollectFollowSets(transition.target, stopState, followSets, stateStack, ruleStack);
                 }
             }
             else if (transition.IsEpsilon)
             {
-                isExhaustive &= CollectFollowSets(transition.Target, stopState, followSets, stateStack, ruleStack);
+                isExhaustive &= CollectFollowSets(transition.target, stopState, followSets, stateStack, ruleStack);
             }
             else if (transition.TransitionType == TransitionType.WILDCARD)
             {
@@ -382,10 +383,10 @@ public class CodeCompletionCore
     private HashSet<int> ProcessRule(RuleStartState startState, int tokenListIndex, List<RuleWithStartToken> callStack,
         int precedence, int indentation)
     {
-        if (!_shortcutMap.TryGetValue(startState.RuleIndex, out var positionMap))
+        if (!_shortcutMap.TryGetValue(startState.ruleIndex, out var positionMap))
         {
             positionMap = new Dictionary<int, HashSet<int>>();
-            _shortcutMap[startState.RuleIndex] = positionMap;
+            _shortcutMap[startState.ruleIndex] = positionMap;
         }
         else
         {
@@ -404,19 +405,19 @@ public class CodeCompletionCore
             s_followSetsByATN[_parser.GetType().FullName] = setsPerState;
         }
 
-        if (!setsPerState.TryGetValue(startState.StateNumber, out var followSets))
+        if (!setsPerState.TryGetValue(startState.stateNumber, out var followSets))
         {
-            var stop = _atn.ruleToStopState[startState.RuleIndex];
+            var stop = _atn.ruleToStopState[startState.ruleIndex];
             followSets = DetermineFollowSets(startState, stop);
-            setsPerState[startState.StateNumber] = followSets;
+            setsPerState[startState.stateNumber] = followSets;
         }
 
         int startTokenIndex = _tokens[tokenListIndex].TokenIndex;
-        callStack.Add(new RuleWithStartToken { StartTokenIndex = startTokenIndex, RuleIndex = startState.RuleIndex });
+        callStack.Add(new RuleWithStartToken { StartTokenIndex = startTokenIndex, RuleIndex = startState.ruleIndex });
 
         if (tokenListIndex >= _tokens.Count - 1) // At caret?
         {
-            if (PreferredRules.Contains(startState.RuleIndex))
+            if (PreferredRules.Contains(startState.ruleIndex))
             {
                 TranslateStackToRuleIndex(callStack);
             }
@@ -505,23 +506,23 @@ public class CodeCompletionCore
                 {
                     case TransitionType.RULE:
                         var ruleTransition = (RuleTransition)transition;
-                        var endStatus = ProcessRule((RuleStartState)transition.Target, currentEntry.TokenListIndex, callStack, ruleTransition.precedence, indentation + 1);
+                        var endStatus = ProcessRule((RuleStartState)transition.target, currentEntry.TokenListIndex, callStack, ruleTransition.precedence, indentation + 1);
                         foreach (var position in endStatus)
                         {
-                            statePipeline.Push(new PipelineEntry { State = ruleTransition.FollowState, TokenListIndex = position });
+                            statePipeline.Push(new PipelineEntry { State = ruleTransition.followState, TokenListIndex = position });
                         }
                         break;
                     case TransitionType.PREDICATE:
                         if (CheckPredicate((PredicateTransition)transition))
                         {
-                            statePipeline.Push(new PipelineEntry { State = transition.Target, TokenListIndex = currentEntry.TokenListIndex });
+                            statePipeline.Push(new PipelineEntry { State = transition.target, TokenListIndex = currentEntry.TokenListIndex });
                         }
                         break;
                     case TransitionType.PRECEDENCE:
                         var predTransition = (PrecedencePredicateTransition)transition;
                         if (predTransition.Precedence >= _precedenceStack.Peek())
                         {
-                            statePipeline.Push(new PipelineEntry { State = transition.Target, TokenListIndex = currentEntry.TokenListIndex });
+                            statePipeline.Push(new PipelineEntry { State = transition.target, TokenListIndex = currentEntry.TokenListIndex });
                         }
                         break;
                     case TransitionType.WILDCARD:
@@ -537,13 +538,13 @@ public class CodeCompletionCore
                         }
                         else
                         {
-                            statePipeline.Push(new PipelineEntry { State = transition.Target, TokenListIndex = currentEntry.TokenListIndex + 1 });
+                            statePipeline.Push(new PipelineEntry { State = transition.target, TokenListIndex = currentEntry.TokenListIndex + 1 });
                         }
                         break;
                     default:
                         if (transition.IsEpsilon)
                         {
-                            statePipeline.Push(new PipelineEntry { State = transition.Target, TokenListIndex = currentEntry.TokenListIndex });
+                            statePipeline.Push(new PipelineEntry { State = transition.target, TokenListIndex = currentEntry.TokenListIndex });
                             continue;
                         }
                         var set = transition.Label;
@@ -581,7 +582,7 @@ public class CodeCompletionCore
                             else if (set.Contains(currentSymbol))
                             {
                                 if (ShowDebugOutput) Console.WriteLine($"=====> consumed: {_vocabulary.GetDisplayName(currentSymbol)}");
-                                statePipeline.Push(new PipelineEntry { State = transition.Target, TokenListIndex = currentEntry.TokenListIndex + 1 });
+                                statePipeline.Push(new PipelineEntry { State = transition.target, TokenListIndex = currentEntry.TokenListIndex + 1 });
                             }
                         }
                         break;
@@ -616,8 +617,8 @@ public class CodeCompletionCore
 
     private string GenerateBaseDescription(ATNState state)
     {
-        string stateValue = state.StateNumber == ATNState.InvalidStateNumber ? "Invalid" : state.StateNumber.ToString();
-        return $"[{stateValue} {state.StateType}] in {_ruleNames[state.RuleIndex]}";
+        string stateValue = state.stateNumber == ATNState.InvalidStateNumber ? "Invalid" : state.stateNumber.ToString();
+        return $"[{stateValue} {state.StateType}] in {_ruleNames[state.ruleIndex]}";
     }
 
     private void PrintDescription(int indentation, ATNState state, string baseDescription, int tokenIndex)
@@ -628,7 +629,7 @@ public class CodeCompletionCore
 
         if (DebugOutputWithTransitions)
         {
-            foreach (var transition in state.transitions)
+            foreach (var transition in state.TransitionsArray)
             {
                 string labels;
                 var symbols = transition.Label?.ToList() ?? new List<int>();
@@ -642,8 +643,8 @@ public class CodeCompletionCore
                 }
 
                 if (string.IsNullOrEmpty(labels)) labels = "ε";
-                transitionDescription += $"\n{indent}\t({labels}) [{transition.Target.StateNumber} " +
-                    $"{transition.Target.StateType}] in {_ruleNames[transition.Target.RuleIndex]}";
+                transitionDescription += $"\n{indent}\t({labels}) [{transition.target.stateNumber} " +
+                    $"{transition.target.StateType}] in {_ruleNames[transition.target.ruleIndex]}";
             }
         }
 
