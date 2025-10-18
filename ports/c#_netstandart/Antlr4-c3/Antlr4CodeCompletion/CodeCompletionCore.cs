@@ -6,9 +6,6 @@
 using Antlr4.Runtime;
 using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Misc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Antlr4CodeCompletion;
 
@@ -472,7 +469,12 @@ public class CodeCompletionCore
             }
         }
 
-        if (startState.IsLeftRecursiveRule)
+        //if (startState.IsLeftRecursiveRule)
+        //{
+        //    _precedenceStack.Push(precedence);
+        //}
+
+        if (startState.isPrecedenceRule)
         {
             _precedenceStack.Push(precedence);
         }
@@ -591,7 +593,12 @@ public class CodeCompletionCore
         }
 
         callStack.RemoveAt(callStack.Count - 1);
-        if (startState.isLeftRecursiveRule)
+        //if (startState.isLeftRecursiveRule)
+        //{
+        //    _precedenceStack.Pop();
+        //}
+
+        if (startState.isPrecedenceRule)
         {
             _precedenceStack.Pop();
         }

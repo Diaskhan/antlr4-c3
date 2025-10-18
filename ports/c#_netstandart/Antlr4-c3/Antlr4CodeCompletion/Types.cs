@@ -3,8 +3,6 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-using System.Collections.Generic;
-
 namespace Antlr4CodeCompletion;
 
 /// <summary>
@@ -112,15 +110,15 @@ public enum ReferenceKind
 /// </summary>
 public interface IType
 {
-    string Name { get;  }
+    string Name { get; }
 
     /// <summary>
     /// The super type of this type or empty if this is a fundamental type.
     /// Also used as the target type for type aliases.
     /// </summary>
-    IList<IType> BaseTypes { get;  }
-    TypeKind Kind { get;  }
-    ReferenceKind Reference { get;  }
+    IList<IType> BaseTypes { get; }
+    TypeKind Kind { get; }
+    ReferenceKind Reference { get; }
 }
 
 public interface ISymbolTableOptions
