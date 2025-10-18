@@ -33,9 +33,9 @@ public class RoutineSymbol : ScopedSymbol
     /// </summary>
     /// <param name="localOnly">If true, only returns symbols from the routine's direct scope.</param>
     /// <returns>A task representing the asynchronous operation that yields a list of variable symbols.</returns>
-    public Task<IReadOnlyList<VariableSymbol>> GetVariablesAsync(bool localOnly = true)
+    public Task<List<VariableSymbol>> GetVariablesAsync(bool localOnly = true)
     {
-        return GetSymbolsOfTypeAsync<VariableSymbol>(localOnly);
+        return Task.FromResult(GetSymbolsOfType<VariableSymbol, object>(x => (VariableSymbol)x[0]).Result);
     }
 
     /// <summary>
@@ -43,8 +43,9 @@ public class RoutineSymbol : ScopedSymbol
     /// </summary>
     /// <param name="localOnly">If true, only returns symbols from the routine's direct scope.</param>
     /// <returns>A task representing the asynchronous operation that yields a list of parameter symbols.</returns>
-    public Task<IReadOnlyList<ParameterSymbol>> GetParametersAsync(bool localOnly = true)
+    public Task<List<ParameterSymbol>> GetParametersAsync(bool localOnly = true)
     {
-        return GetSymbolsOfTypeAsync<ParameterSymbol>(localOnly);
+        //return GetSymbolsOfTypeAsync<ParameterSymbol>(localOnly);
+        return Task.FromResult(GetSymbolsOfType<ParameterSymbol, object>(x => (ParameterSymbol)x[0]).Result);
     }
 }

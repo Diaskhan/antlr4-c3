@@ -1,321 +1,229 @@
-/*
- * Copyright (c) Mike Lischke. All rights reserved.
- * Licensed under the MIT License. See License.txt in the project root for license information.
- */
-
-using Antlr4.Runtime.Tree;
+using Antlr4CodeCompletion;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Antlr4CodeCompletion;
-
-public interface ISymbolTable : IScopedSymbol
+namespace Antlr4CodeCompletion // Replace with your namespace
 {
-    ISymbolTableOptions Options { get; }
-
-    /// <summary>
-    /// Gets instance information, mostly relevant for unit testing.
-    /// </summary>
-    (int DependencyCount, int SymbolCount) Info { get; }
-
-    void Clear();
-    void AddDependencies(params SymbolTable[] tables);
-    void RemoveDependency(SymbolTable table);
-    T AddNewSymbolOfType<T>(ScopedSymbol? parent, params object[] args) where T : BaseSymbol;
-
-    /// <summary>
-    /// Asynchronously adds a new namespace to the symbol table or the given parent. The path parameter specifies a
-    /// single namespace name or a chain of namespaces (e.g., "outer.intermittent.inner.final").
-    /// If any of the parent namespaces are missing, they are created implicitly. The final part must not exist
-    /// to avoid a duplicate symbol error.
-    /// </summary>
-    /// <param name="parent">The parent to add the namespace to.</param>
-    /// <param name="path">The namespace path.</param>
-    /// <param name="delimiter">The delimiter used in the path.</param>
-    /// <returns>A task resolving to the new symbol.</returns>
-    Task<NamespaceSymbol> AddNewNamespaceFromPathAsync(ScopedSymbol? parent, string path, string delimiter = ".");
-
-    /// <summary>
-    /// Synchronously adds a new namespace to the symbol table or the given parent. The path parameter specifies a
-    /// single namespace name or a chain of namespaces (e.g., "outer.intermittent.inner.final").
-    /// If any of the parent namespaces are missing, they are created implicitly. The final part must not exist
-    /// to avoid a duplicate symbol error.
-    /// </summary>
-    /// <param name="parent">The parent to add the namespace to.</param>
-    /// <param name="path">The namespace path.</param>
-    /// <param name="delimiter">The delimiter used in the path.</param>
-    /// <returns>The new symbol.</returns>
-    NamespaceSymbol AddNewNamespaceFromPath(ScopedSymbol? parent, string path, string delimiter = ".");
-
-    /// <summary>
-    /// Asynchronously returns all symbols from this scope (and optionally those from dependencies) of a specific type.
-    /// </summary>
-    /// <typeparam name="T">The type of the symbols to return.</typeparam>
-    /// <param name="localOnly">If true, do not search dependencies.</param>
-    /// <returns>A promise which resolves when all symbols are collected.</returns>
-    Task<IList<T>> GetAllSymbolsAsync<T>(bool localOnly = false) where T : BaseSymbol;
-
-    /// <summary>
-    /// Synchronously returns all symbols from this scope (and optionally those from dependencies) of a specific type.
-    /// </summary>
-    /// <typeparam name="T">The type of the symbols to return.</typeparam>
-    /// <param name="localOnly">If true, do not search dependencies.</param>
-    /// <returns>A list with all symbols.</returns>
-    IList<T> GetAllSymbols<T>(bool localOnly = false) where T : BaseSymbol;
-
-    /// <summary>
-    /// Asynchronously looks for a symbol which is connected with a given parse tree context.
-    /// </summary>
-    /// <param name="context">The context to search for.</param>
-    /// <returns>A task resolving to the found symbol or null.</returns>
-    Task<BaseSymbol?> SymbolWithContextAsync(IParseTree context);
-
-    /// <summary>
-    /// Synchronously looks for a symbol which is connected with a given parse tree context.
-    /// </summary>
-    /// <param name="context">The context to search for.</param>
-    /// <returns>The found symbol or null.</returns>
-    BaseSymbol? SymbolWithContext(IParseTree context);
-
-    /// <summary>
-    /// Asynchronously resolves a name to a symbol.
-    /// </summary>
-    /// <param name="name">The name of the symbol to find.</param>
-    /// <param name="localOnly">A flag indicating if only this symbol table should be used or also its dependencies.</param>
-    /// <returns>A promise resolving to the found symbol or null.</returns>
-    Task<BaseSymbol?> ResolveAsync(string name, bool localOnly = false);
-
-    /// <summary>
-    /// Synchronously resolves a name to a symbol.
-    /// </summary>
-    /// <param name="name">The name of the symbol to find.</param>
-    /// <param name="localOnly">A flag indicating if only this symbol table should be used or also its dependencies.</param>
-    /// <returns>The found symbol or null.</returns>
-    BaseSymbol? Resolve(string name, bool localOnly = false);
-}
-
-/// <summary>
-/// The main class managing all the symbols for a top-level entity like a file, library, or similar.
-/// </summary>
-public class SymbolTable : ScopedSymbol, ISymbolTable
-{
-    /// <summary>
-    /// Other symbol information available to this instance.
-    /// </summary>
-    protected readonly ISet<SymbolTable> dependencies = new HashSet<SymbolTable>();
-
-    public SymbolTable(string name, ISymbolTableOptions options) : base(name)
+    
+    public interface ISymbolTable : IScopedSymbol
     {
-        Options = options;
+        ISymbolTableOptions Options { get; }
+        (int dependencyCount, int symbolCount) Info { get; }
+        void Clear();
+        void AddDependencies(params ISymbolTable[] tables);
+        void RemoveDependency(ISymbolTable table);
+        T AddNewSymbolOfType<T, Args>(SymbolConstructor<T, Args> t, IScopedSymbol parent, params Args[] args) where T : IBaseSymbol;
+        Task<INamespaceSymbol> AddNewNamespaceFromPath(IScopedSymbol parent, string path, string delimiter = ".");
+        INamespaceSymbol AddNewNamespaceFromPathSync(IScopedSymbol parent, string path, string delimiter = ".");
+        Task<List<T>> GetAllSymbols<T, Args>(SymbolConstructor<T, Args> t, bool localOnly = false) where T : IBaseSymbol;
+        List<T> GetAllSymbolsSync<T, Args>(SymbolConstructor<T, Args> t, bool localOnly = false) where T : IBaseSymbol;
+        Task<IBaseSymbol> SymbolWithContext(ParseTree context);
+        IBaseSymbol SymbolWithContextSync(ParseTree context);
+        new Task<IBaseSymbol> Resolve(string name, bool localOnly = false);
+        new IBaseSymbol ResolveSync(string name, bool localOnly = false);
     }
 
-    public ISymbolTableOptions Options { get; }
-
-    public (int DependencyCount, int SymbolCount) Info => (dependencies.Count, Children.Count);
-
-    public override void Clear()
+    public class SymbolTable : ScopedSymbol, ISymbolTable
     {
-        base.Clear();
-        dependencies.Clear();
-    }
+        private readonly HashSet<ISymbolTable> _dependencies = new HashSet<ISymbolTable>();
 
-    public void AddDependencies(params SymbolTable[] tables)
-    {
-        foreach (var table in tables)
+        public SymbolTable(string name, ISymbolTableOptions options) : base(name)
         {
-            dependencies.Add(table);
+            Options = options;
         }
-    }
 
-    public void RemoveDependency(SymbolTable table)
-    {
-        dependencies.Remove(table);
-    }
+        public ISymbolTableOptions Options { get; }
 
-    public T AddNewSymbolOfType<T>(ScopedSymbol? parent, params object[] args) where T : BaseSymbol
-    {
-        var result = (T)Activator.CreateInstance(typeof(T), args)!;
-        (parent ?? this).AddSymbol(result);
-        return result;
-    }
+        public (int dependencyCount, int symbolCount) Info => (_dependencies.Count, Children.Length);
 
-    public async Task<NamespaceSymbol> AddNewNamespaceFromPathAsync(ScopedSymbol? parent, string path, string delimiter = ".")
-    {
-        var parts = path.Split(delimiter);
-        var currentParent = parent ?? this;
-        for (var i = 0; i < parts.Length - 1; ++i)
+        public void Clear()
         {
-            var part = parts[i];
-            var ns = await currentParent.ResolveAsync(part, true) as NamespaceSymbol;
-            if (ns == null)
+            base.Clear();
+            _dependencies.Clear();
+        }
+
+        public void AddDependencies(params ISymbolTable[] tables)
+        {
+            foreach (var table in tables)
+                _dependencies.Add(table);
+        }
+
+        public void RemoveDependency(ISymbolTable table)
+        {
+            _dependencies.Remove(table);
+        }
+
+        public T AddNewSymbolOfType<T, Args>(SymbolConstructor<T, Args> t, IScopedSymbol parent, params Args[] args) where T : IBaseSymbol
+        {
+            var result = t(args);
+            var targetParent = parent ?? this;
+            targetParent.AddSymbol(result);
+            return result;
+        }
+
+        public async Task<INamespaceSymbol> AddNewNamespaceFromPath(IScopedSymbol parent, string path, string delimiter = ".")
+        {
+            var parts = path.Split(delimiter);
+            int i = 0;
+            var currentParent = parent ?? this;
+            while (i < parts.Length - 1)
             {
-                ns = AddNewSymbolOfType<NamespaceSymbol>(currentParent, part);
+                var namespaceSymbol = await currentParent.Resolve(parts[i], true) as INamespaceSymbol;
+                if (namespaceSymbol == null)
+                    namespaceSymbol = AddNewSymbolOfType<INamespaceSymbol, object>(x => (INamespaceSymbol)x[0], currentParent, parts[i]);
+                currentParent = namespaceSymbol;
+                i++;
             }
-            currentParent = ns;
+            return AddNewSymbolOfType<INamespaceSymbol, object>(x => (INamespaceSymbol)x[0], currentParent, parts[parts.Length - 1]);
         }
 
-        return AddNewSymbolOfType<NamespaceSymbol>(currentParent, parts[parts.Length - 1]);
-    }
-
-    public NamespaceSymbol AddNewNamespaceFromPath(ScopedSymbol? parent, string path, string delimiter = ".")
-    {
-        var parts = path.Split(delimiter);
-        var currentParent = parent ?? this;
-        for (var i = 0; i < parts.Length - 1; ++i)
+        public INamespaceSymbol AddNewNamespaceFromPathSync(IScopedSymbol parent, string path, string delimiter = ".")
         {
-            var part = parts[i];
-            var ns = currentParent.Resolve(part, true) as NamespaceSymbol;
-            if (ns == null)
+            var parts = path.Split(delimiter);
+            int i = 0;
+            var currentParent = parent ?? this;
+            while (i < parts.Length - 1)
             {
-                ns = AddNewSymbolOfType<NamespaceSymbol>(currentParent, part);
+                var namespaceSymbol = currentParent.ResolveSync(parts[i], true) as INamespaceSymbol;
+                if (namespaceSymbol == null)
+                    namespaceSymbol = AddNewSymbolOfType<INamespaceSymbol, object>(x => (INamespaceSymbol)x[0], currentParent, parts[i]);
+                currentParent = namespaceSymbol;
+                i++;
             }
-            currentParent = ns;
+            return AddNewSymbolOfType<INamespaceSymbol, object>(x => (INamespaceSymbol)x[0], currentParent, parts[parts.Length - 1]);
         }
 
-        return AddNewSymbolOfType<NamespaceSymbol>(currentParent, parts[parts.Length - 1]);
-    }
-
-    public override async Task<IList<T>> GetAllSymbolsAsync<T>(bool localOnly = false)
-    {
-        var result = new List<T>(await base.GetAllSymbolsAsync<T>(localOnly));
-
-        if (!localOnly)
+        public async Task<List<T>> GetAllSymbols<T, Args>(SymbolConstructor<T, Args> t, bool localOnly = false) where T : IBaseSymbol
         {
-            var tasks = dependencies.Select(d => d.GetAllSymbolsAsync<T>(localOnly)).ToList();
-            var dependencyResults = await Task.WhenAll(tasks);
-            result.AddRange(dependencyResults.SelectMany(l => l));
-        }
-
-        return result;
-    }
-
-    public override IList<T> GetAllSymbols<T>(bool localOnly = false)
-    {
-        var result = new List<T>(base.GetAllSymbols<T>(localOnly));
-
-        if (!localOnly)
-        {
-            foreach (var dependency in dependencies)
+            var result = await base.GetAllSymbols<T, Args>(t, localOnly);
+            if (!localOnly)
             {
-                result.AddRange(dependency.GetAllSymbols<T>(localOnly));
+                var dependencyResults = await Task.WhenAll(_dependencies.Select(d => d.GetAllSymbols<T, Args>(t, false)));
+                foreach (var value in dependencyResults)
+                    result.AddRange(value);
             }
+            return result;
         }
 
-        return result;
-    }
-
-    public async Task<BaseSymbol?> SymbolWithContextAsync(IParseTree context)
-    {
-        BaseSymbol? findRecursive(BaseSymbol symbol)
+        public List<T> GetAllSymbolsSync<T, Args>(SymbolConstructor<T, Args> t, bool localOnly = false) where T : IBaseSymbol
         {
-            if (symbol.Context == context)
+            var result = base.GetAllSymbolsSync<T, Args>(t, localOnly);
+            if (!localOnly)
             {
-                return symbol;
+                foreach (var dependency in _dependencies)
+                    result.AddRange(dependency.GetAllSymbolsSync<T, Args>(t, false));
             }
+            return result;
+        }
 
-            if (symbol is ScopedSymbol scopedSymbol)
+        public async Task<IBaseSymbol> SymbolWithContext(ParseTree context)
+        {
+            IBaseSymbol FindRecursive(IBaseSymbol symbol)
             {
-                foreach (var child in scopedSymbol.Children)
+                if (symbol.Context == context)
+                    return symbol;
+                if (symbol is IScopedSymbol scoped)
                 {
-                    var result = findRecursive(child);
-                    if (result != null)
+                    foreach (var child in scoped.Children)
                     {
-                        return result;
+                        var result = FindRecursive(child);
+                        if (result != null)
+                            return result;
                     }
                 }
+                return null;
             }
 
+            var symbols = await GetAllSymbols<IBaseSymbol, object>(x => (IBaseSymbol)x[0]);
+            foreach (var symbol in symbols)
+            {
+                var result = FindRecursive(symbol);
+                if (result != null)
+                    return result;
+            }
+
+            foreach (var dependency in _dependencies)
+            {
+                symbols = await dependency.GetAllSymbols<IBaseSymbol, object>(x => (IBaseSymbol)x[0]);
+                foreach (var symbol in symbols)
+                {
+                    var result = FindRecursive(symbol);
+                    if (result != null)
+                        return result;
+                }
+            }
             return null;
         }
 
-        var symbols = await GetAllSymbolsAsync<BaseSymbol>(false);
-        foreach (var symbol in symbols)
+        public IBaseSymbol SymbolWithContextSync(ParseTree context)
         {
-            var result = findRecursive(symbol);
-            if (result != null)
+            IBaseSymbol FindRecursive(IBaseSymbol symbol)
             {
-                return result;
-            }
-        }
-
-        return null;
-    }
-
-    public BaseSymbol? SymbolWithContext(IParseTree context)
-    {
-        BaseSymbol? findRecursive(BaseSymbol symbol)
-        {
-            if (symbol.Context == context)
-            {
-                return symbol;
-            }
-
-            if (symbol is ScopedSymbol scopedSymbol)
-            {
-                foreach (var child in scopedSymbol.Children)
+                if (symbol.Context == context)
+                    return symbol;
+                if (symbol is IScopedSymbol scoped)
                 {
-                    var result = findRecursive(child);
-                    if (result != null)
+                    foreach (var child in scoped.Children)
                     {
-                        return result;
+                        var result = FindRecursive(child);
+                        if (result != null)
+                            return result;
                     }
                 }
+                return null;
             }
 
+            var symbols = GetAllSymbolsSync<IBaseSymbol, object>(x => (IBaseSymbol)x[0]);
+            foreach (var symbol in symbols)
+            {
+                var result = FindRecursive(symbol);
+                if (result != null)
+                    return result;
+            }
+
+            foreach (var dependency in _dependencies)
+            {
+                symbols = dependency.GetAllSymbolsSync<IBaseSymbol, object>(x => (IBaseSymbol)x[0]);
+                foreach (var symbol in symbols)
+                {
+                    var result = FindRecursive(symbol);
+                    if (result != null)
+                        return result;
+                }
+            }
             return null;
         }
 
-        var symbols = GetAllSymbols<BaseSymbol>(false);
-        foreach (var symbol in symbols)
+        public override async Task<IBaseSymbol> Resolve(string name, bool localOnly = false)
         {
-            var result = findRecursive(symbol);
-            if (result != null)
+            var result = await base.Resolve(name, localOnly);
+            if (result == null && !localOnly)
             {
-                return result;
-            }
-        }
-
-        return null;
-    }
-
-    public override async Task<BaseSymbol?> ResolveAsync(string name, bool localOnly = false)
-    {
-        var result = await base.ResolveAsync(name, localOnly);
-        if (result == null && !localOnly)
-        {
-            foreach (var dependency in dependencies)
-            {
-                result = await dependency.ResolveAsync(name, false);
-                if (result != null)
+                foreach (var dependency in _dependencies)
                 {
-                    return result;
+                    result = await dependency.Resolve(name, false);
+                    if (result != null)
+                        return result;
                 }
             }
+            return result;
         }
 
-        return result;
-    }
-
-    public override BaseSymbol? Resolve(string name, bool localOnly = false)
-    {
-        var result = base.Resolve(name, localOnly);
-        if (result == null && !localOnly)
+        public override IBaseSymbol ResolveSync(string name, bool localOnly = false)
         {
-            foreach (var dependency in dependencies)
+            var result = base.ResolveSync(name, localOnly);
+            if (result == null && !localOnly)
             {
-                result = dependency.Resolve(name, false);
-                if (result != null)
+                foreach (var dependency in _dependencies)
                 {
-                    return result;
+                    result = dependency.ResolveSync(name, false);
+                    if (result != null)
+                        return result;
                 }
             }
+            return result;
         }
-
-
-
-        return result;
     }
-
 }

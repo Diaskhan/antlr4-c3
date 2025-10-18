@@ -202,7 +202,7 @@ public class CodeCompletionCore
 
     private bool CheckPredicate(PredicateTransition transition)
     {
-        return transition.Predicate.Evaluate(_parser, ParserRuleContext.EmptyContext);
+        return transition.Predicate.Eval(_parser, ParserRuleContext.EmptyContext);
     }
 
     private bool TranslateStackToRuleIndex(List<RuleWithStartToken> ruleWithStartTokenList)
@@ -500,7 +500,7 @@ public class CodeCompletionCore
                 continue;
             }
 
-            foreach (var transition in currentEntry.State.transitions)
+            foreach (var transition in currentEntry.State.TransitionsArray)
             {
                 switch (transition.TransitionType)
                 {
@@ -520,7 +520,7 @@ public class CodeCompletionCore
                         break;
                     case TransitionType.PRECEDENCE:
                         var predTransition = (PrecedencePredicateTransition)transition;
-                        if (predTransition.Precedence >= _precedenceStack.Peek())
+                        if (predTransition.precedence >= _precedenceStack.Peek())
                         {
                             statePipeline.Push(new PipelineEntry { State = transition.target, TokenListIndex = currentEntry.TokenListIndex });
                         }

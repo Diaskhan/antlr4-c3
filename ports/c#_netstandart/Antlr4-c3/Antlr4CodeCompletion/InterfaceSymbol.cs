@@ -46,9 +46,9 @@ public class InterfaceSymbol : ScopedSymbol, IType
     /// </summary>
     /// <param name="includeInherited">This parameter is not used.</param>
     /// <returns>A task that represents the asynchronous operation and contains the list of all methods.</returns>
-    public Task<IList<MethodSymbol>> GetMethodsAsync(bool includeInherited = false)
+    public Task<List<MethodSymbol>> GetMethodsAsync(bool includeInherited = false)
     {
-        return GetSymbolsOfTypeAsync<MethodSymbol>();
+        return Task.FromResult(GetSymbolsOfType<MethodSymbol, object>(x => (MethodSymbol)x[0]).Result);
     }
 
     /// <summary>
@@ -56,8 +56,8 @@ public class InterfaceSymbol : ScopedSymbol, IType
     /// </summary>
     /// <param name="includeInherited">This parameter is not used.</param>
     /// <returns>A task that represents the asynchronous operation and contains the list of all fields.</returns>
-    public Task<IList<FieldSymbol>> GetFieldsAsync(bool includeInherited = false)
+    public Task<List<FieldSymbol>> GetFieldsAsync(bool includeInherited = false)
     {
-        return GetSymbolsOfTypeAsync<FieldSymbol>();
+        return Task.FromResult(GetSymbolsOfType<FieldSymbol, object>(x => (FieldSymbol)x[0]).Result);
     }
 }
