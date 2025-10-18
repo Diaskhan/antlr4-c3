@@ -302,7 +302,7 @@ public class CodeCompletionCore
         var combined = new IntervalSet();
         foreach (var set in sets)
         {
-            combined.AddSet(set.Intervals);
+            combined.AddAll(set.Intervals);
         }
         return new FollowSetsHolder { Sets = sets, IsExhaustive = isExhaustive, Combined = combined };
     }
@@ -313,7 +313,7 @@ public class CodeCompletionCore
         if (stateStack.Contains(s)) return true;
         stateStack.Add(s);
 
-        if (s == stopState || s.StateType == ATNStateType.RULE_STOP)
+        if (s == stopState || s.StateType == StateType.RuleStop)
         {
             stateStack.RemoveAt(stateStack.Count - 1);
             return false;
@@ -472,7 +472,7 @@ public class CodeCompletionCore
             }
         }
 
-        if (startState.isLeftRecursiveRule)
+        if (startState.IsLeftRecursiveRule)
         {
             _precedenceStack.Push(precedence);
         }
@@ -494,7 +494,7 @@ public class CodeCompletionCore
                 if (ShowRuleStack) PrintRuleState(callStack);
             }
 
-            if (currentEntry.State.StateType == ATNStateType.RULE_STOP)
+            if (currentEntry.State.StateType == StateType.RuleStop)
             {
                 result.Add(currentEntry.TokenListIndex);
                 continue;

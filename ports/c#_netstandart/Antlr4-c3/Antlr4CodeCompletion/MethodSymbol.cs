@@ -33,7 +33,7 @@ public class MethodSymbol : RoutineSymbol
 {
     public MethodFlags MethodFlags { get; set; } = MethodFlags.None;
 
-    public MethodSymbol(string name, IScopedSymbol? parent) : base(name, parent)
+    public MethodSymbol(string name, IType? parent) : base(name, parent)
     {
     }
 }
