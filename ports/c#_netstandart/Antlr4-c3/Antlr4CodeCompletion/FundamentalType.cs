@@ -56,7 +56,7 @@ public class FundamentalType : IType
     public string Name { get; }
 
     /// <inheritdoc/>
-    public IReadOnlyList<IType> BaseTypes => Array.Empty<IType>();
+    public IList<IType> BaseTypes => Array.Empty<IType>();
 
     /// <inheritdoc/>
     public TypeKind Kind => _typeKind;

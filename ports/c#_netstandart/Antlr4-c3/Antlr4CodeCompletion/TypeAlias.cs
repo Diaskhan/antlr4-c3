@@ -3,8 +3,6 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-using System.Collections.Generic;
-
 namespace Antlr4CodeCompletion;
 
 /// <summary>
@@ -25,11 +23,12 @@ public class TypeAlias : BaseSymbol, IType
     }
 
     /// <inheritdoc/>
-    public IReadOnlyList<IType> BaseTypes => new[] { _targetType };
+    public IList<IType> BaseTypes => new[] { _targetType };
 
     /// <inheritdoc/>
     public TypeKind Kind => TypeKind.Alias;
 
     /// <inheritdoc/>
     public ReferenceKind Reference => ReferenceKind.Irrelevant;
+
 }

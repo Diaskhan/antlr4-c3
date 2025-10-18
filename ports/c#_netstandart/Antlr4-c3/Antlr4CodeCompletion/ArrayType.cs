@@ -40,7 +40,7 @@ public class ArrayType : BaseSymbol, IType
     public int Size { get; }
 
     /// <inheritdoc/>
-    public IReadOnlyList<IType> BaseTypes => Array.Empty<IType>();
+    public IList<IType> BaseTypes => Array.Empty<IType>();
 
     /// <inheritdoc/>
     public TypeKind Kind => TypeKind.Array;

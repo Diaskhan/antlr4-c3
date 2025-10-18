@@ -22,12 +22,12 @@ public class ClassSymbol : ScopedSymbol, IType
     /// Gets the list of classes this class extends. C# supports single inheritance, 
     /// but other languages may support multiple, so a list is used.
     /// </summary>
-    public IReadOnlyList<ClassSymbol> BaseClasses { get; }
+    public IList<ClassSymbol> BaseClasses { get; }
 
     /// <summary>
     /// Gets the list of interfaces and classes this class implements.
     /// </summary>
-    public IReadOnlyList<IType> ImplementedInterfaces { get; }
+    public IList<IType> ImplementedInterfaces { get; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ClassSymbol"/> class.
@@ -35,7 +35,7 @@ public class ClassSymbol : ScopedSymbol, IType
     /// <param name="name">The name of the class.</param>
     /// <param name="baseClasses">The list of classes this class extends.</param>
     /// <param name="implementedInterfaces">The list of interfaces and classes this class implements.</param>
-    public ClassSymbol(string name, IReadOnlyList<ClassSymbol> baseClasses, IReadOnlyList<IType> implementedInterfaces)
+    public ClassSymbol(string name, IList<ClassSymbol> baseClasses, IList<IType> implementedInterfaces)
         : base(name)
     {
         BaseClasses = baseClasses;
@@ -43,7 +43,7 @@ public class ClassSymbol : ScopedSymbol, IType
     }
 
     /// <inheritdoc/>
-    public IReadOnlyList<IType> BaseTypes => BaseClasses;
+    public IList<IType> BaseTypes => (IList<IType>)BaseClasses;
 
     /// <inheritdoc/>
     public TypeKind Kind => TypeKind.Class;
@@ -56,7 +56,7 @@ public class ClassSymbol : ScopedSymbol, IType
     /// </summary>
     /// <param name="includeInherited">This parameter is not used.</param>
     /// <returns>A task that represents the asynchronous operation and contains the list of all methods.</returns>
-    public Task<IReadOnlyList<MethodSymbol>> GetMethodsAsync(bool includeInherited = false)
+    public Task<IEnumerable<MethodSymbol>> GetMethodsAsync(bool includeInherited = false)
     {
         return GetSymbolsOfTypeAsync<MethodSymbol>();
     }
@@ -66,7 +66,7 @@ public class ClassSymbol : ScopedSymbol, IType
     /// </summary>
     /// <param name="includeInherited">This parameter is not used.</param>
     /// <returns>A task that represents the asynchronous operation and contains the list of all fields.</returns>
-    public Task<IReadOnlyList<FieldSymbol>> GetFieldsAsync(bool includeInherited = false)
+    public Task<IEnumerable<FieldSymbol>> GetFieldsAsync(bool includeInherited = false)
     {
         return GetSymbolsOfTypeAsync<FieldSymbol>();
     }

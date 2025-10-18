@@ -112,15 +112,15 @@ public enum ReferenceKind
 /// </summary>
 public interface IType
 {
-    string Name { get; set; }
+    string Name { get;  }
 
     /// <summary>
     /// The super type of this type or empty if this is a fundamental type.
     /// Also used as the target type for type aliases.
     /// </summary>
-    IList<IType> BaseTypes { get; set; }
-    TypeKind Kind { get; set; }
-    ReferenceKind Reference { get; set; }
+    IList<IType> BaseTypes { get;  }
+    TypeKind Kind { get;  }
+    ReferenceKind Reference { get;  }
 }
 
 public interface ISymbolTableOptions
