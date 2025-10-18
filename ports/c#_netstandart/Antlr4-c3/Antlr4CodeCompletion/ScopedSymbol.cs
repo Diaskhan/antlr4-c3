@@ -18,9 +18,9 @@ public interface IScopedSymbol : BaseSymbol
     /// <summary>
     /// Gets all direct child symbols with a scope (e.g., classes in a module).
     /// </summary>
-    Task<IEnumerable<IScopedSymbol>> DirectScopesAsync { get; }
+    Task<IList<IScopedSymbol>> DirectScopesAsync { get; }
 
-    IReadOnlyList<BaseSymbol> Children { get; }
+    IList<BaseSymbol> Children { get; }
     BaseSymbol? FirstChild { get; }
     BaseSymbol? LastChild { get; }
 
@@ -44,35 +44,35 @@ public interface IScopedSymbol : BaseSymbol
     /// </summary>
     /// <typeparam name="T">The type of the symbols to return.</typeparam>
     /// <returns>A task that resolves to a list of all nested children of the given type.</returns>
-    Task<IEnumerable<T>> GetNestedSymbolsOfTypeAsync<T>() where T : BaseSymbol;
+    Task<IList<T>> GetNestedSymbolsOfTypeAsync<T>() where T : BaseSymbol;
 
     /// <summary>
     /// Synchronously retrieves all nested child symbols of a given type from this symbol.
     /// </summary>
     /// <typeparam name="T">The type of the symbols to return.</typeparam>
     /// <returns>A list of all nested children of the given type.</returns>
-    IEnumerable<T> GetNestedSymbolsOfType<T>() where T : BaseSymbol;
+    IList<T> GetNestedSymbolsOfType<T>() where T : BaseSymbol;
 
     /// <summary>
     /// Asynchronously retrieves symbols from this and all nested scopes, optionally filtered by name.
     /// </summary>
     /// <param name="name">If provided, only returns symbols with that name.</param>
     /// <returns>A task that resolves to a list of symbols in definition order.</returns>
-    Task<IEnumerable<BaseSymbol>> GetAllNestedSymbolsAsync(string? name = null);
+    Task<IList<BaseSymbol>> GetAllNestedSymbolsAsync(string? name = null);
 
     /// <summary>
     /// Synchronously retrieves symbols from this and all nested scopes, optionally filtered by name.
     /// </summary>
     /// <param name="name">If provided, only returns symbols with that name.</param>
     /// <returns>A list of all symbols in definition order.</returns>
-    IEnumerable<BaseSymbol> GetAllNestedSymbols(string? name = null);
+    IList<BaseSymbol> GetAllNestedSymbols(string? name = null);
 
     /// <summary>
     /// Asynchronously retrieves direct child symbols of a given type.
     /// </summary>
     /// <typeparam name="T">The type of the symbols to return.</typeparam>
     /// <returns>A task that resolves to a list of direct children of the given type.</returns>
-    Task<IEnumerable<T>> GetSymbolsOfTypeAsync<T>() where T : BaseSymbol;
+    Task<IList<T>> GetSymbolsOfTypeAsync<T>() where T : BaseSymbol;
 
     /// <summary>
     /// Asynchronously retrieves all symbols of a given type accessible from this scope.
@@ -80,7 +80,7 @@ public interface IScopedSymbol : BaseSymbol
     /// <typeparam name="T">The type of symbols to return.</typeparam>
     /// <param name="localOnly">If true, only child symbols are returned; otherwise, symbols from parent scopes are also included.</param>
     /// <returns>A task resolving to all accessible symbols of the specified type.</returns>
-    Task<IEnumerable<T>> GetAllSymbolsAsync<T>(bool localOnly = false) where T : BaseSymbol;
+    Task<IList<T>> GetAllSymbolsAsync<T>(bool localOnly = false) where T : BaseSymbol;
 
     /// <summary>
     /// Synchronously retrieves all symbols of a given type accessible from this scope.
@@ -88,7 +88,7 @@ public interface IScopedSymbol : BaseSymbol
     /// <typeparam name="T">The type of symbols to return.</typeparam>
     /// <param name="localOnly">If true, only child symbols are returned; otherwise, symbols from parent scopes are also included.</param>
     /// <returns>A list of all accessible symbols of the specified type.</returns>
-    IEnumerable<T> GetAllSymbols<T>(bool localOnly = false) where T : BaseSymbol;
+    IList<T> GetAllSymbols<T>(bool localOnly = false) where T : BaseSymbol;
 
     /// <summary>
     /// Asynchronously resolves a name to the first symbol found in this scope or any parent scope.
@@ -138,9 +138,9 @@ public class ScopedSymbol : BaseSymbol, IScopedSymbol
     {
     }
 
-    public Task<IEnumerable<IScopedSymbol>> DirectScopesAsync => GetSymbolsOfTypeAsync<IScopedSymbol>();
+    public Task<IList<IScopedSymbol>> DirectScopesAsync => await GetSymbolsOfTypeAsync<IScopedSymbol>();
 
-    public IReadOnlyList<BaseSymbol> Children => _children.AsReadOnly();
+    public IList<BaseSymbol> Children => _children.AsReadOnly();
     public BaseSymbol? FirstChild => _children.Count > 0 ? _children[0] : null;
     public BaseSymbol? LastChild => _children.Count > 0 ? _children[^1] : null;
 
@@ -192,10 +192,10 @@ public class ScopedSymbol : BaseSymbol, IScopedSymbol
         }
     }
 
-    public async Task<IEnumerable<T>> GetNestedSymbolsOfTypeAsync<T>() where T : BaseSymbol
+    public async Task<IList<T>> GetNestedSymbolsOfTypeAsync<T>() where T : BaseSymbol
     {
         var result = new List<T>();
-        var childTasks = new List<Task<IEnumerable<T>>>();
+        var childTasks = new List<Task<IList<T>>>();
 
         foreach (var child in _children)
         {
@@ -215,7 +215,7 @@ public class ScopedSymbol : BaseSymbol, IScopedSymbol
         return result;
     }
 
-    public IEnumerable<T> GetNestedSymbolsOfType<T>() where T : BaseSymbol
+    public IList<T> GetNestedSymbolsOfType<T>() where T : BaseSymbol
     {
         var result = new List<T>();
         foreach (var child in _children)
@@ -232,10 +232,10 @@ public class ScopedSymbol : BaseSymbol, IScopedSymbol
         return result;
     }
 
-    public async Task<IEnumerable<BaseSymbol>> GetAllNestedSymbolsAsync(string? name = null)
+    public async Task<IList<BaseSymbol>> GetAllNestedSymbolsAsync(string? name = null)
     {
         var result = new List<BaseSymbol>();
-        var childTasks = new List<Task<IEnumerable<BaseSymbol>>>();
+        var childTasks = new List<Task<IList<BaseSymbol>>>();
 
         foreach (var child in _children)
         {
@@ -255,7 +255,7 @@ public class ScopedSymbol : BaseSymbol, IScopedSymbol
         return result;
     }
 
-    public IEnumerable<BaseSymbol> GetAllNestedSymbols(string? name = null)
+    public IList<BaseSymbol> GetAllNestedSymbols(string? name = null)
     {
         var result = new List<BaseSymbol>();
         foreach (var child in _children)
@@ -272,12 +272,12 @@ public class ScopedSymbol : BaseSymbol, IScopedSymbol
         return result;
     }
 
-    public Task<IEnumerable<T>> GetSymbolsOfTypeAsync<T>() where T : BaseSymbol
+    public Task<IList<T>> GetSymbolsOfTypeAsync<T>() where T : BaseSymbol
     {
-        return Task.FromResult(_children.OfType<T>());
+        return Task.FromResult<IList<T>>(_children.OfType<T>().ToList());
     }
 
-    public virtual async Task<IEnumerable<T>> GetAllSymbolsAsync<T>(bool localOnly = false) where T : BaseSymbol
+    public virtual async Task<IList<T>> GetAllSymbolsAsync<T>(bool localOnly = false) where T : BaseSymbol
     {
         var result = new List<T>();
 
@@ -302,7 +302,7 @@ public class ScopedSymbol : BaseSymbol, IScopedSymbol
         return result;
     }
 
-    public virtual IEnumerable<T> GetAllSymbols<T>(bool localOnly = false) where T : BaseSymbol
+    public virtual IList<T> GetAllSymbols<T>(bool localOnly = false) where T : BaseSymbol
     {
         var result = new List<T>();
         

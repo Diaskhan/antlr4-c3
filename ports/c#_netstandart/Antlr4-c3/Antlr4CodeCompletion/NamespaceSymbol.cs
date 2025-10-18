@@ -21,7 +21,7 @@ public interface INamespaceSymbol : IScopedSymbol
     /// <summary>
     /// Gets the attributes of the namespace.
     /// </summary>
-    IReadOnlyList<string> Attributes { get; }
+    IList<string> Attributes { get; }
 }
 
 /// <summary>
@@ -33,7 +33,7 @@ public class NamespaceSymbol : ScopedSymbol, INamespaceSymbol
     public bool IsInline { get; }
 
     /// <inheritdoc/>
-    public IReadOnlyList<string> Attributes { get; }
+    public IList<string> Attributes { get; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="NamespaceSymbol"/> class.
@@ -41,9 +41,9 @@ public class NamespaceSymbol : ScopedSymbol, INamespaceSymbol
     /// <param name="name">The name of the namespace.</param>
     /// <param name="isInline">A value indicating whether the namespace is inline.</param>
     /// <param name="attributes">A list of attributes for the namespace.</param>
-    public NamespaceSymbol(string name, bool isInline = false, IReadOnlyList<string>? attributes = null) : base(name)
+    public NamespaceSymbol(string name, bool isInline = false, IList<string>? attributes = null) : base(name)
     {
         IsInline = isInline;
-        Attributes = attributes ?? Array.Empty<string>();
+        Attributes = attributes ?? new List<string>();
     }
 }

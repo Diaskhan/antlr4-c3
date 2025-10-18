@@ -89,7 +89,7 @@ public class BaseSymbol
             IScopedSymbol? run = _parent;
             while (run != null)
             {
-                if (run.Parent == null || run.Parent is ISymbolTable)
+                if (run. Parent == null || run.Parent is ISymbolTable)
                 {
                     return run;
                 }
@@ -129,7 +129,7 @@ public class BaseSymbol
     /// <summary>
     /// Gets the list of symbols from this one up to the root.
     /// </summary>
-    public IReadOnlyList<BaseSymbol> SymbolPath
+    public IList<BaseSymbol> SymbolPath
     {
         get
         {
@@ -169,7 +169,7 @@ public class BaseSymbol
     /// <param name="name">The name of the symbol to find.</param>
     /// <param name="localOnly">If true, only direct child symbols are considered.</param>
     /// <returns>A task that resolves to the first symbol found, or null if no symbol is found.</returns>
-    public Task<BaseSymbol?> ResolveAsync(string name, bool localOnly = false)
+    public virtual Task<BaseSymbol?> ResolveAsync(string name, bool localOnly = false)
     {
         return _parent?.ResolveAsync(name, localOnly) ?? Task.FromResult<BaseSymbol?>(null);
     }
@@ -180,9 +180,9 @@ public class BaseSymbol
     /// <param name="name">The name of the symbol to find.</param>
     /// <param name="localOnly">If true, only direct child symbols are considered.</param>
     /// <returns>The first symbol found, or null if no symbol is found.</returns>
-    public BaseSymbol? ResolveSync(string name, bool localOnly = false)
+    public virtual BaseSymbol? Resolve(string name, bool localOnly = false)
     {
-        return _parent?.ResolveSync(name, localOnly);
+        return _parent?.Resolve(name, localOnly);
     }
 
     /// <summary>

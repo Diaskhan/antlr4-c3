@@ -56,7 +56,7 @@ public class ClassSymbol : ScopedSymbol, IType
     /// </summary>
     /// <param name="includeInherited">This parameter is not used.</param>
     /// <returns>A task that represents the asynchronous operation and contains the list of all methods.</returns>
-    public Task<IEnumerable<MethodSymbol>> GetMethodsAsync(bool includeInherited = false)
+    public Task<IList<MethodSymbol>> GetMethodsAsync(bool includeInherited = false)
     {
         return GetSymbolsOfTypeAsync<MethodSymbol>();
     }
@@ -66,7 +66,7 @@ public class ClassSymbol : ScopedSymbol, IType
     /// </summary>
     /// <param name="includeInherited">This parameter is not used.</param>
     /// <returns>A task that represents the asynchronous operation and contains the list of all fields.</returns>
-    public Task<IEnumerable<FieldSymbol>> GetFieldsAsync(bool includeInherited = false)
+    public Task<IList<FieldSymbol>> GetFieldsAsync(bool includeInherited = false)
     {
         return GetSymbolsOfTypeAsync<FieldSymbol>();
     }
