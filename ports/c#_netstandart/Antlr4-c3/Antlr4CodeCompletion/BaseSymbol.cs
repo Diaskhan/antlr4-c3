@@ -1,11 +1,12 @@
+using Antlr4.Runtime.Tree;
+
 namespace Antlr4CodeCompletion // Replace with your namespace
 {
-    public interface ParseTree { }
 
     public interface IBaseSymbol
     {
         string Name { get; }
-        ParseTree Context { get; set; }
+        IParseTree Context { get; set; }
         HashSet<Modifier> Modifiers { get; }
         MemberVisibility Visibility { get; set; }
         IScopedSymbol Parent { get; }
@@ -29,7 +30,7 @@ namespace Antlr4CodeCompletion // Replace with your namespace
     public class BaseSymbol : IBaseSymbol
     {
         public string Name { get; }
-        public ParseTree Context { get; set; }
+        public IParseTree Context { get; set; }
         public HashSet<Modifier> Modifiers { get; } = new HashSet<Modifier>();
         public MemberVisibility Visibility { get; set; } = MemberVisibility.Unknown;
         private IScopedSymbol _parent;

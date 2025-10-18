@@ -1,3 +1,5 @@
+using Antlr4.Runtime.Tree;
+
 namespace Antlr4CodeCompletion // Replace with your namespace
 {
 
@@ -13,8 +15,8 @@ namespace Antlr4CodeCompletion // Replace with your namespace
         INamespaceSymbol AddNewNamespaceFromPathSync(IScopedSymbol parent, string path, string delimiter = ".");
         Task<List<T>> GetAllSymbols<T, Args>(SymbolConstructor<T, Args> t, bool localOnly = false) where T : IBaseSymbol;
         List<T> GetAllSymbolsSync<T, Args>(SymbolConstructor<T, Args> t, bool localOnly = false) where T : IBaseSymbol;
-        Task<IBaseSymbol> SymbolWithContext(ParseTree context);
-        IBaseSymbol SymbolWithContextSync(ParseTree context);
+        Task<IBaseSymbol> SymbolWithContext(IParseTree context);
+        IBaseSymbol SymbolWithContextSync(IParseTree context);
         new Task<IBaseSymbol> Resolve(string name, bool localOnly = false);
         new IBaseSymbol ResolveSync(string name, bool localOnly = false);
     }
@@ -112,7 +114,7 @@ namespace Antlr4CodeCompletion // Replace with your namespace
             return result;
         }
 
-        public async Task<IBaseSymbol> SymbolWithContext(ParseTree context)
+        public async Task<IBaseSymbol> SymbolWithContext(IParseTree context)
         {
             IBaseSymbol FindRecursive(IBaseSymbol symbol)
             {
@@ -151,7 +153,7 @@ namespace Antlr4CodeCompletion // Replace with your namespace
             return null;
         }
 
-        public IBaseSymbol SymbolWithContextSync(ParseTree context)
+        public IBaseSymbol SymbolWithContextSync(IParseTree context)
         {
             IBaseSymbol FindRecursive(IBaseSymbol symbol)
             {
