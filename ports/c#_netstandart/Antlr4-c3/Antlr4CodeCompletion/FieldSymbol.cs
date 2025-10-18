@@ -29,4 +29,11 @@ public class FieldSymbol : VariableSymbol
     public FieldSymbol(string name, object value, IType? type = null) : base(name, value, type)
     {
     }
+
+    /// <summary>
+    /// Compatibility constructor accepting only name and value (type omitted). Used by Activator.CreateInstance calls that pass two args.
+    /// </summary>
+    public FieldSymbol(string name, object value) : this(name, value, null)
+    {
+    }
 }

@@ -31,7 +31,13 @@ public class MethodSymbol : RoutineSymbol
 {
     public MethodFlags MethodFlags { get; set; } = MethodFlags.None;
 
-    public MethodSymbol(string name, IType? parent) : base(name, parent)
+    // Primary constructor matching RoutineSymbol's signature (name, returnType).
+    public MethodSymbol(string name, IType? returnType) : base(name, returnType)
+    {
+    }
+
+    // Compatibility constructor used by tests and Activator.CreateInstance when only the name argument is provided.
+    public MethodSymbol(string name) : base(name)
     {
     }
 }

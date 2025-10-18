@@ -43,4 +43,11 @@ public class NamespaceSymbol : ScopedSymbol, INamespaceSymbol
         IsInline = isInline;
         Attributes = attributes ?? new List<string>();
     }
+
+    /// <summary>
+    /// Compatibility constructor that accepts only the name. Used by tests and Activator.CreateInstance calls.
+    /// </summary>
+    public NamespaceSymbol(string name) : this(name, false, null)
+    {
+    }
 }

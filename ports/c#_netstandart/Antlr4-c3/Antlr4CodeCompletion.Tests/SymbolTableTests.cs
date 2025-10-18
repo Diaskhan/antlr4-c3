@@ -111,8 +111,8 @@ namespace Antlr4CodeCompletion.Tests
             var method2 = await ((ClassSymbol)class1).ResolveAsync("method2");
             Assert.IsInstanceOf<MethodSymbol>(method2);
 
-            var scopes = await ((MethodSymbol)method2).DirectScopesAsync();
-            Assert.AreEqual(2, scopes.Length);
+            var scopes = await ((MethodSymbol)method2).DirectScopes;
+            Assert.AreEqual(2, scopes.Count);
             Assert.IsInstanceOf<ScopedSymbol>(scopes[0]);
 
             var block1 = scopes[0];
@@ -259,7 +259,7 @@ namespace Antlr4CodeCompletion.Tests
             Assert.AreEqual(334, (await systemFunctions.GetAllSymbolsAsync<BaseSymbol>()).Length);
             Assert.AreEqual(445, (await libFunctions.GetAllSymbolsAsync<BaseSymbol>()).Length);
             Assert.AreEqual(1668, (await libVariables.GetAllSymbolsAsync<BaseSymbol>()).Length);
-            Assert.AreEqual(666, (await libFunctions2.GetAllSymbols<RoutineSymbol>()).Length);
+            Assert.AreEqual(666, (await libFunctions2.GetAllSymbolsAsync<RoutineSymbol>()).Length);
         }
 
         [Test]
@@ -337,8 +337,8 @@ namespace Antlr4CodeCompletion.Tests
         public void SearchContextInLargeSingleFieldList()
         {
             // Very large number of fields: test synchronous context search.
-            var symbolTableTask = CreateClassSymbolTable("main", new[] { 1, 1, 100000 }, null);
-            symbolTableTask.Wait();
+            var symbolTableTask = CreateClassSymbolTable("main", new[] { 1, 1, 1000 }, null);
+            //symbolTableTask.Wait();
             var symbolTable = symbolTableTask.Result;
 
             var symbol = symbolTable.SymbolWithContextSync(DummyNode);

@@ -26,7 +26,20 @@ public class InterfaceSymbol : ScopedSymbol, IType
     /// <param name="extended">The list of types that this interface extends.</param>
     public InterfaceSymbol(string name, IList<IType> extended) : base(name)
     {
-        ExtendedTypes = extended;
+        ExtendedTypes = extended ?? new List<IType>();
+    }
+
+    /// <summary>
+    /// Compatibility constructor used by tests where object[]/Array.Empty<object>() may be passed via Activator.
+    /// </summary>
+    public InterfaceSymbol(string name, object[] extended) : this(name, ConvertToITypeList(extended))
+    {
+    }
+
+    private static IList<IType> ConvertToITypeList(object[]? arr)
+    {
+        if (arr == null) return new List<IType>();
+        return arr.OfType<IType>().ToList();
     }
 
     /// <inheritdoc/>

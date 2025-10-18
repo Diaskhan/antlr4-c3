@@ -23,7 +23,7 @@ namespace Antlr4CodeCompletion // Replace with your namespace
         void RemoveFromParent();
         Task<IBaseSymbol> Resolve(string name, bool localOnly = false);
         IBaseSymbol ResolveSync(string name, bool localOnly = false);
-        T GetParentOfType<T>(Type t) where T : IBaseSymbol;
+        T GetParentOfType<T>() where T : IBaseSymbol;
         string QualifiedName(string separator = ".", bool full = false, bool includeAnonymous = false);
     }
 
@@ -120,12 +120,12 @@ namespace Antlr4CodeCompletion // Replace with your namespace
             return _parent?.ResolveSync(name, localOnly);
         }
 
-        public T GetParentOfType<T>(Type t) where T : IBaseSymbol
+        public T GetParentOfType<T>() where T : IBaseSymbol
         {
             var run = _parent;
             while (run != null)
             {
-                if (run.GetType() == t)
+                if (run.GetType() == typeof(T))
                     return (T)run;
                 run = run.Parent;
             }

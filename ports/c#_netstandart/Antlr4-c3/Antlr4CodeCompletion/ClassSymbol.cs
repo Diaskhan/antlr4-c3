@@ -35,8 +35,24 @@ public class ClassSymbol : ScopedSymbol, IType
     public ClassSymbol(string name, IList<ClassSymbol> baseClasses, IList<IType> implementedInterfaces)
         : base(name)
     {
-        BaseClasses = baseClasses;
-        ImplementedInterfaces = implementedInterfaces;
+        BaseClasses = baseClasses ?? new List<ClassSymbol>();
+        ImplementedInterfaces = implementedInterfaces ?? new List<IType>();
+    }
+
+    /// <summary>
+    /// Compatibility constructor used by tests / convenience factory overloads where arrays or object[] are provided.
+    /// Accepts ClassSymbol[] and object[] to match the Array.Empty usages from the test helper.
+    /// </summary>
+    public ClassSymbol(string name, ClassSymbol[] baseClasses, object[] implementedInterfaces)
+        : this(name, baseClasses ?? Array.Empty<ClassSymbol>(), ConvertToITypeList(implementedInterfaces))
+    {
+    }
+
+    private static IList<IType> ConvertToITypeList(object[]? arr)
+    {
+        if (arr == null) return new List<IType>();
+        // If array already contains IType elements, cast; otherwise ignore non-IType entries.
+        return arr.OfType<IType>().ToList();
     }
 
     /// <inheritdoc/>

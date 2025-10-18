@@ -16,11 +16,20 @@ public class RoutineSymbol : ScopedSymbol
     public IType? ReturnType { get; set; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="RoutineSymbol"/> class.
+    /// Initializes a new instance of the <see cref="RoutineSymbol"/> class with only a name.
+    /// </summary>
+    /// <param name="name">The name of the routine.</param>
+    public RoutineSymbol(string name) : base(name)
+    {
+        ReturnType = null;
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RoutineSymbol"/> class with a name and return type.
     /// </summary>
     /// <param name="name">The name of the routine.</param>
     /// <param name="returnType">The return type of the routine.</param>
-    public RoutineSymbol(string name, IType? returnType = null) : base(name)
+    public RoutineSymbol(string name, IType? returnType) : base(name)
     {
         ReturnType = returnType;
     }

@@ -16,12 +16,28 @@ public class VariableSymbol : TypedSymbol
     public object Value { get; set; }
 
     /// <summary>
+    /// Initializes a new instance of the <see cref="VariableSymbol"/> class with name only.
+    /// Compatibility overload for Activator.CreateInstance calls that pass only the name.
+    /// </summary>
+    public VariableSymbol(string name) : this(name, null, null)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="VariableSymbol"/> class with name and value.
+    /// Compatibility overload for Activator.CreateInstance calls that pass name and value (no type).
+    /// </summary>
+    public VariableSymbol(string name, object value) : this(name, value, null)
+    {
+    }
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="VariableSymbol"/> class.
     /// </summary>
     /// <param name="name">The name of the symbol.</param>
     /// <param name="value">The value of the symbol.</param>
     /// <param name="type">The type of the symbol.</param>
-    public VariableSymbol(string name, object value, IType type = null) : base(name, type)
+    public VariableSymbol(string name, object value, IType? type = null) : base(name, type)
     {
         Value = value;
     }

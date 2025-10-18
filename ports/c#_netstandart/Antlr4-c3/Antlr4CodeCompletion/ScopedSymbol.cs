@@ -1,3 +1,9 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Antlr4.Runtime.Tree;
+
 namespace Antlr4CodeCompletion // Replace with your namespace
 {
 
@@ -266,6 +272,31 @@ namespace Antlr4CodeCompletion // Replace with your namespace
         private bool IsNamespace(object candidate)
         {
             return candidate is INamespaceSymbol ns && ns.IsInline != null && ns.Attributes != null;
+        }
+
+        // Convenience async wrappers used by tests
+        public async Task<IBaseSymbol[]> GetAllNestedSymbolsAsync()
+        {
+            var list = await GetAllNestedSymbols();
+            return list.ToArray();
+        }
+
+        public async Task<T[]> GetNestedSymbolsOfTypeAsync<T>() where T : IBaseSymbol
+        {
+            var list = await GetNestedSymbolsOfType<T, object>((args) => (T)args[0]);
+            return list.ToArray();
+        }
+
+        // Non-suffixed variant used by some tests
+        public Task<T[]> GetNestedSymbolsOfType<T>() where T : IBaseSymbol
+        {
+            return GetNestedSymbolsOfTypeAsync<T>();
+        }
+
+        public async Task<T[]> GetSymbolsOfTypeAsync<T>() where T : IBaseSymbol
+        {
+            var list = await GetSymbolsOfType<T, object>((args) => (T)args[0]);
+            return list.ToArray();
         }
     }
 }
