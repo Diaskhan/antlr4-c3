@@ -58,15 +58,11 @@ public class TSqlAutocomplete
         // 🚑 Включаем «мягкий» обработчик ошибок (чтобы не падал)
         parser.ErrorHandler = new DefaultErrorStrategy();
 
-        try
-        {
-            parser.BuildParseTree = true;
-            parser.tsql_file(); // можно не использовать результат
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[Parser skipped due to invalid input: {ex.Message}]");
-        }
+
+        parser.BuildParseTree = false;
+        var context = parser.tsql_file(); // можно не использовать результат
+        Console.WriteLine(context);
+
 
         var core = new CodeCompletionCore(parser);
 
@@ -100,7 +96,7 @@ public class TSqlAutocomplete
         string[] inputs =
         {
             "insert ",            // неполное слово
-            "SELECT ",          // курсор после SELECT
+            "SELECT * ;",          // курсор после SELECT
             "SELECT name FROM ;",
             "SELECT arg1 ",        // курсор перед ;
             "SELECT arg1,arg2 F ",        // курсор перед ;
@@ -134,7 +130,7 @@ public class TSqlAutocomplete
             parser.RemoveErrorListeners();
             parser.AddErrorListener(errorListener);
 
-            parser.BuildParseTree = true;
+            parser.BuildParseTree = false;
             parser.tsql_file(); // можно не использовать результат
 
             var core = new CodeCompletionCore(parser);
