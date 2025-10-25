@@ -139,6 +139,7 @@ namespace AntlrC3
         {
             parameters ??= new Parameters();
 
+
             timeout = parameters.Timeout;
             cancel = parameters.IsCancelled;
             timeoutStart = Stopwatch.StartNew();
@@ -153,6 +154,7 @@ namespace AntlrC3
             tokenStartIndex = (parameters.Context != null && parameters.Context.Start != null)
                 ? parameters.Context.Start.TokenIndex
                 : 0;
+
 
             var tokenStream = parser.TokenStream;
 
@@ -310,7 +312,7 @@ namespace AntlrC3
         // ---------------------------
         // getFollowingTokens (static)
         // ---------------------------
-        //private static TokenList GetFollowingTokens(Transition transition)
+        //private static TokenList GetFollowingTokens(Transition transition) //iteration1
         //{
         //    var result = new TokenList();
         //    var pipeline = new Stack<ATNState>();
@@ -366,7 +368,7 @@ namespace AntlrC3
         //    return result;
         //}
 
-        private static TokenList GetFollowingTokens(Transition transition)
+        private static TokenList GetFollowingTokens(Transition transition) //iteration2
         {
             var result = new TokenList();
             var pipeline = new Stack<ATNState>();
