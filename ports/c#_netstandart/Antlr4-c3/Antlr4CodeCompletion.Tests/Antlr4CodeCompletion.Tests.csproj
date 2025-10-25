@@ -29,4 +29,10 @@
 	  <ProjectReference Include="..\Antlr4CodeCompletion\Antlr4CodeCompletion.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <None Update="test_package\Parser.cpp">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
+
 </Project>

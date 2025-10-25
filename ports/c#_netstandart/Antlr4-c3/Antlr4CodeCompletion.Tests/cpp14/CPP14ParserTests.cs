@@ -142,7 +142,7 @@ public:
         public void RealCppFile()
         {
             // Пример чтения реального файла Parser.cpp (как в C++)
-            var path = Path.Combine("..", "..", "..", "..", "tests", "Parser.cpp");
+            var path = Path.Combine(".","test_package", "Parser.cpp");
             Assert.That(File.Exists(path), $"File not found: {path}");
 
             var source = File.ReadAllText(path);

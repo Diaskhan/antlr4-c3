@@ -310,61 +310,108 @@ namespace AntlrC3
         // ---------------------------
         // getFollowingTokens (static)
         // ---------------------------
+        //private static TokenList GetFollowingTokens(Transition transition)
+        //{
+        //    var result = new TokenList();
+        //    var pipeline = new Stack<ATNState>();
+        //    if (transition?.target != null) pipeline.Push(transition.target);
+
+        //    while (pipeline.Count > 0)
+        //    {
+        //        var state = pipeline.Pop();
+        //        if (state == null) continue;
+        //        foreach (var outgoing in state.TransitionsArray)
+        //        {
+        //            // Only care about atom transitions that are not epsilon or epsilon-only
+        //            if (outgoing.TransitionType == Antlr4.Runtime.Atn.TransitionType.RULE) continue;
+        //            if (outgoing.TransitionType == Antlr4.Runtime.Atn.TransitionType.ATOM)
+        //            {
+        //                if (!outgoing.IsEpsilon)
+        //                {
+        //                    // label() in C++ -> Label in C#? runtime might expose Label property/method
+        //                    // CHECK-RUNTIME-API: adjust if runtime uses 'Label' or 'Label()'
+        //                    IntervalSet label = null;
+        //                    try
+        //                    {
+        //                        label = outgoing.Label; // CHECK-RUNTIME-API
+        //                    }
+        //                    catch
+        //                    {
+        //                        try { label = outgoing.Label; } catch { label = new IntervalSet(); }
+        //                    }
+
+        //                    var list = label.ToList();
+        //                    if (list.Count == 1)
+        //                    {
+        //                        result.Add(list[0]);
+        //                        pipeline.Push(outgoing.target);
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    pipeline.Push(outgoing.target);
+        //                }
+        //            }
+        //            else
+        //            {
+        //                // For other types, if epsilon then continue
+        //                if (outgoing.IsEpsilon)
+        //                {
+        //                    pipeline.Push(outgoing.target);
+        //                }
+        //            }
+        //        }
+        //    }
+
+        //    return result;
+        //}
+
         private static TokenList GetFollowingTokens(Transition transition)
         {
             var result = new TokenList();
             var pipeline = new Stack<ATNState>();
-            if (transition?.target != null) pipeline.Push(transition.target);
+            var visited = new HashSet<ATNState>();
+
+            if (transition?.target != null)
+                pipeline.Push(transition.target);
 
             while (pipeline.Count > 0)
             {
                 var state = pipeline.Pop();
-                if (state == null) continue;
+                if (state == null || !visited.Add(state))
+                    continue; // уже посещали — пропускаем
+
                 foreach (var outgoing in state.TransitionsArray)
                 {
-                    // Only care about atom transitions that are not epsilon or epsilon-only
-                    if (outgoing.TransitionType == Antlr4.Runtime.Atn.TransitionType.RULE) continue;
-                    if (outgoing.TransitionType == Antlr4.Runtime.Atn.TransitionType.ATOM)
+                    switch (outgoing.TransitionType)
                     {
-                        if (!outgoing.IsEpsilon)
-                        {
-                            // label() in C++ -> Label in C#? runtime might expose Label property/method
-                            // CHECK-RUNTIME-API: adjust if runtime uses 'Label' or 'Label()'
-                            IntervalSet label = null;
-                            try
+                        case TransitionType.RULE:
+                            // Игнорируем вложенные правила
+                            continue;
+
+                        case TransitionType.ATOM:
                             {
-                                label = outgoing.Label; // CHECK-RUNTIME-API
-                            }
-                            catch
-                            {
-                                try { label = outgoing.Label; } catch { label = new IntervalSet(); }
+                                var label = outgoing.Label ?? new IntervalSet();
+                                foreach (var symbol in label.ToList())
+                                    result.Add(symbol);
+
+                                // продолжаем обход после этого перехода
+                                pipeline.Push(outgoing.target);
+                                break;
                             }
 
-                            var list = label.ToList();
-                            if (list.Count == 1)
-                            {
-                                result.Add(list[0]);
+                        default:
+                            // Для других типов (включая epsilon) — просто продолжаем обход
+                            if (outgoing.IsEpsilon)
                                 pipeline.Push(outgoing.target);
-                            }
-                        }
-                        else
-                        {
-                            pipeline.Push(outgoing.target);
-                        }
-                    }
-                    else
-                    {
-                        // For other types, if epsilon then continue
-                        if (outgoing.IsEpsilon)
-                        {
-                            pipeline.Push(outgoing.target);
-                        }
+                            break;
                     }
                 }
             }
 
             return result;
         }
+
 
         // ---------------------------
         // determineFollowSets
