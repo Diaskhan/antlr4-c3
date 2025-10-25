@@ -942,7 +942,7 @@ namespace AntlrC3
                 {
                     var labels = "";
                     IntervalSet label;
-                    try { label = transition.Label; } catch { label = new IntervalSet(); }
+                    label = transition.Label ?? new IntervalSet();
                     var symbols = label.ToList();
                     if (symbols.Count > 2)
                     {
