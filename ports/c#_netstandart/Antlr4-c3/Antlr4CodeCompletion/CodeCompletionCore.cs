@@ -368,7 +368,53 @@ namespace AntlrC3
         //    return result;
         //}
 
-        private static TokenList GetFollowingTokens(Transition transition) //iteration2
+        //private static TokenList GetFollowingTokens(Transition transition) //iteration2
+        //{
+        //    var result = new TokenList();
+        //    var pipeline = new Stack<ATNState>();
+        //    var visited = new HashSet<ATNState>();
+
+        //    if (transition?.target != null)
+        //        pipeline.Push(transition.target);
+
+        //    while (pipeline.Count > 0)
+        //    {
+        //        var state = pipeline.Pop();
+        //        if (state == null || !visited.Add(state))
+        //            continue; // уже посещали — пропускаем
+
+        //        foreach (var outgoing in state.TransitionsArray)
+        //        {
+        //            switch (outgoing.TransitionType)
+        //            {
+        //                case TransitionType.RULE:
+        //                    // Игнорируем вложенные правила
+        //                    continue;
+
+        //                case TransitionType.ATOM:
+        //                    {
+        //                        var label = outgoing.Label ?? new IntervalSet();
+        //                        foreach (var symbol in label.ToList())
+        //                            result.Add(symbol);
+
+        //                        // продолжаем обход после этого перехода
+        //                        pipeline.Push(outgoing.target);
+        //                        break;
+        //                    }
+
+        //                default:
+        //                    // Для других типов (включая epsilon) — просто продолжаем обход
+        //                    if (outgoing.IsEpsilon)
+        //                        pipeline.Push(outgoing.target);
+        //                    break;
+        //            }
+        //        }
+        //    }
+
+        //    return result;
+        //}
+
+        private static TokenList GetFollowingTokens(Transition transition)
         {
             var result = new TokenList();
             var pipeline = new Stack<ATNState>();
@@ -381,38 +427,44 @@ namespace AntlrC3
             {
                 var state = pipeline.Pop();
                 if (state == null || !visited.Add(state))
-                    continue; // уже посещали — пропускаем
+                    continue; // уже посещали — пропускаем, чтобы не уйти в бесконечность
 
                 foreach (var outgoing in state.TransitionsArray)
                 {
-                    switch (outgoing.TransitionType)
+                    // 1️⃣ Игнорируем переходы к другим правилам (nested rules)
+                    if (outgoing.TransitionType == TransitionType.RULE)
+                        continue;
+
+                    // 2️⃣ Если это переход по конкретному символу
+                    if (outgoing.TransitionType == TransitionType.ATOM)
                     {
-                        case TransitionType.RULE:
-                            // Игнорируем вложенные правила
-                            continue;
+                        var label = outgoing.Label ?? new IntervalSet();
+                        var symbols = label.ToList();
 
-                        case TransitionType.ATOM:
-                            {
-                                var label = outgoing.Label ?? new IntervalSet();
-                                foreach (var symbol in label.ToList())
-                                    result.Add(symbol);
+                        // В C++ добавляется только если в списке ровно один символ
+                        if (symbols.Count == 1)
+                        {
+                            result.Add(symbols[0]);
+                            pipeline.Push(outgoing.target);
+                        }
+                        else if (outgoing.IsEpsilon)
+                        {
+                            // Продолжаем, если это ε-переход
+                            pipeline.Push(outgoing.target);
+                        }
 
-                                // продолжаем обход после этого перехода
-                                pipeline.Push(outgoing.target);
-                                break;
-                            }
-
-                        default:
-                            // Для других типов (включая epsilon) — просто продолжаем обход
-                            if (outgoing.IsEpsilon)
-                                pipeline.Push(outgoing.target);
-                            break;
+                        continue;
                     }
+
+                    // 3️⃣ Для других типов (SET, RANGE и т. д.)
+                    if (outgoing.IsEpsilon)
+                        pipeline.Push(outgoing.target);
                 }
             }
 
             return result;
         }
+
 
 
         // ---------------------------
