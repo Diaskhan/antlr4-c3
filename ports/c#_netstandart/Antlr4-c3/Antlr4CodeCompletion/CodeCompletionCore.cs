@@ -1,17 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Misc;
-using Antlr4.Runtime.Dfa;
+using System.Diagnostics;
 
 namespace AntlrC3
 {
-    using TokenList = List<int>;
     using RuleList = List<int>;
+    using TokenList = List<int>;
 
     public struct CandidateRule
     {
@@ -609,7 +604,7 @@ namespace AntlrC3
                 return result;
             }
 
-            if (startState.IsLeftRecursiveRule)
+            if (startState.isPrecedenceRule)
             {
                 precedenceStack.Add(precedence);
             }
@@ -788,7 +783,7 @@ namespace AntlrC3
             } // while pipeline
 
             callStack.RemoveAt(callStack.Count - 1);
-            if (startState.IsLeftRecursiveRule && precedenceStack.Count > 0)
+            if (startState.isPrecedenceRule && precedenceStack.Count > 0)
             {
                 precedenceStack.RemoveAt(precedenceStack.Count - 1);
             }
