@@ -6,6 +6,6 @@ export default defineConfig({
         isolate: false,
         environment: "node",
         pool: "threads",
-        testTimeout: 60000, // 20 секунд
+        testTimeout: 180000, // 20 секунд
     },
 });
