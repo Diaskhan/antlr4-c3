@@ -12,6 +12,8 @@ namespace CodeCompletion
     using Antlr4.Runtime.Misc;
     using RuleList = List<int>;
     using TokenList = List<int>;
+    using RuleEndStatus = HashSet<int>;
+    using FollowSetsPerState = Dictionary<int, FollowSetsHolder>;
 
     public class CandidateRule
     {
@@ -54,8 +56,6 @@ namespace CodeCompletion
         public int TokenListIndex { get; set; }
     }
 
-    using RuleEndStatus = HashSet<int>;
-    using FollowSetsPerState = Dictionary<int, FollowSetsHolder>;
 
     /// <summary>
     /// Основной класс для сбора кандидатов автодополнения.
@@ -66,20 +66,20 @@ namespace CodeCompletion
 
         private static readonly string[] atnStateTypeMap = new[]
         {
-            "invalid",
-            "basic",
-            "rule start",
-            "block start",
-            "plus block start",
-            "star block start",
-            "token start",
-            "rule stop",
-            "block end",
-            "star loop back",
-            "star loop entry",
-            "plus loop back",
-            "loop end"
-        };
+ "invalid",
+ "basic",
+ "rule start",
+ "block start",
+ "plus block start",
+ "star block start",
+ "token start",
+ "rule stop",
+ "block end",
+ "star loop back",
+ "star loop entry",
+ "plus loop back",
+ "loop end"
+ };
 
         public bool ShowResult { get; set; } = false;
         public bool ShowDebugOutput { get; set; } = false;
@@ -183,8 +183,8 @@ namespace CodeCompletion
                 return false;
 
             IEnumerable<int> range = TranslateRulesTopDown
-                ? Enumerable.Range(0, stack.Count).Reverse()
-                : Enumerable.Range(0, stack.Count);
+            ? Enumerable.Range(0, stack.Count).Reverse()
+            : Enumerable.Range(0, stack.Count);
 
             foreach (var i in range)
             {
@@ -241,8 +241,9 @@ namespace CodeCompletion
             while (pipeline.Count > 0)
             {
                 var state = pipeline.Pop();
-                foreach (var outgoing in state.Transitions)
+                for (int ti = 0; ti < state.NumberOfTransitions; ++ti)
                 {
+                    var outgoing = state.Transition(ti);
                     if (outgoing.TransitionType == TransitionType.ATOM)
                     {
                         if (!outgoing.IsEpsilon)
@@ -277,7 +278,7 @@ namespace CodeCompletion
         }
 
         private bool CollectFollowSets(ATNState s, ATNState stopState,
-            List<FollowSetWithPath> followSets, Stack<ATNState> stateStack, Stack<int> ruleStack)
+        List<FollowSetWithPath> followSets, Stack<ATNState> stateStack, Stack<int> ruleStack)
         {
             if (stateStack.Contains(s))
                 return true;
@@ -291,8 +292,9 @@ namespace CodeCompletion
             }
 
             bool isExhaustive = true;
-            foreach (var transition in s.Transitions)
+            for (int ti = 0; ti < s.NumberOfTransitions; ++ti)
             {
+                var transition = s.Transition(ti);
                 switch (transition.TransitionType)
                 {
                     case TransitionType.RULE:
@@ -348,7 +350,7 @@ namespace CodeCompletion
         }
 
         private RuleEndStatus ProcessRule(RuleStartState startState, int tokenListIndex,
-            List<RuleWithStartToken> callStack, int precedence, int indentation)
+        List<RuleWithStartToken> callStack, int precedence, int indentation)
         {
             if (!shortcutMap.TryGetValue(startState.ruleIndex, out var posMap))
             {
@@ -437,14 +439,15 @@ namespace CodeCompletion
                 var currentSymbol = tokens[current.TokenListIndex].Type;
                 bool atCaret = current.TokenListIndex >= tokens.Count - 1;
 
-                foreach (var transition in current.State.Transitions)
+                for (int ti = 0; ti < current.State.NumberOfTransitions; ++ti)
                 {
+                    var transition = current.State.Transition(ti);
                     switch (transition.TransitionType)
                     {
                         case TransitionType.RULE:
                             var ruleTransition = (RuleTransition)transition;
                             var endStatus = ProcessRule((RuleStartState)transition.target, current.TokenListIndex,
-                                callStack, ruleTransition.precedence, indentation + 1);
+                            callStack, ruleTransition.precedence, indentation + 1);
                             foreach (var pos in endStatus)
                                 pipeline.Push(new PipelineEntry { State = ruleTransition.followState, TokenListIndex = pos });
                             break;
