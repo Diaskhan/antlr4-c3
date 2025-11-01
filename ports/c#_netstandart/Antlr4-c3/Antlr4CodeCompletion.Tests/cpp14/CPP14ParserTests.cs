@@ -85,14 +85,18 @@ public:
         [Test]
         public void SimpleCppExampleWithErrors()
         {
-            string source = @"
-class A {
-public:
-  void test() {
-    if ()
-  }
-};
-";
+
+            string source = "class A {\n" +    "public:\n" +    "  void test() {\n" +    "    if ()" +    "  }\n" +    "};\n";
+
+
+//            string source = @"
+//class A {
+//public:
+//  void test() {
+//    if ()
+//  }
+//};
+//";
             var parser = CreateParser(source);
             parser.translationunit();
 

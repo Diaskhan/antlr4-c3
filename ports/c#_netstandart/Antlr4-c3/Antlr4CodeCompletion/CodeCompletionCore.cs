@@ -5,7 +5,7 @@ using Antlr4.Runtime;
 using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Misc;
 
-namespace CodeCompletion
+namespace AntlrC3
 {
     using Antlr4.Runtime;
     using Antlr4.Runtime.Atn;
@@ -435,6 +435,9 @@ namespace CodeCompletion
                     result.Add(current.TokenListIndex);
                     continue;
                 }
+
+                if (tokens.Count == current.TokenListIndex)
+                    break;
 
                 var currentSymbol = tokens[current.TokenListIndex].Type;
                 bool atCaret = current.TokenListIndex >= tokens.Count - 1;
