@@ -66,7 +66,7 @@ namespace Antlr4C3.Demo
     {
         public string DisplayName => "MS SQL (T-SQL)";
 
-        public string SampleCode => "SELECT  FROM dbo.Customers WHERE ;\r\n";
+        public string SampleCode => "SELECT * FROM dbo.Customers WHERE ;\r\n";
 
         public ISet<int> IgnoredTokens { get; } = new HashSet<int>
         {
