@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	<OutputType>WinExe</OutputType>
+	<TargetFramework>net8.0-windows</TargetFramework>
+	<Nullable>disable</Nullable>
+	<UseWindowsForms>true</UseWindowsForms>
+	<ImplicitUsings>disable</ImplicitUsings>
+	<LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+	<PackageReference Include="Antlr4.Runtime.Standard" Version="4.7.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<ProjectReference Include="..\..\src\Antlr4C3\Antlr4C3.csproj" />
+  </ItemGroup>
+
+  <!-- Reuse the CPP14 parser generated for the test project -->
+  <ItemGroup>
+	<Compile Include="..\..\test\Antlr4C3.Tests\Grammar\CPP14Lexer.cs" Link="Grammar\CPP14Lexer.cs" />
+	<Compile Include="..\..\test\Antlr4C3.Tests\Grammar\CPP14Parser.cs" Link="Grammar\CPP14Parser.cs" />
+	<Compile Include="..\..\test\Antlr4C3.Tests\Grammar\CPP14Listener.cs" Link="Grammar\CPP14Listener.cs" />
+	<Compile Include="..\..\test\Antlr4C3.Tests\Grammar\CPP14BaseListener.cs" Link="Grammar\CPP14BaseListener.cs" />
+  </ItemGroup>
+
+</Project>
