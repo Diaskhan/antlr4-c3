@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using Antlr4.Runtime;
-using Antlr4C3.Tests.Grammar;
 
 namespace Antlr4C3.Demo
 {
@@ -13,26 +12,23 @@ namespace Antlr4C3.Demo
         private readonly TextBox _codeBox;
         private readonly TextBox _resultBox;
         private readonly Label _statusLabel;
+        private readonly Label _codeLabel;
+        private readonly ListBox _grammarList;
 
-        // Tokens/rules ignored or preferred, mirroring the C++ autocomplete test setup.
-        private static readonly HashSet<int> IgnoredTokens = new HashSet<int>
+        // Grammars the user can pick from in the list box.
+        private static readonly IGrammarProvider[] Grammars =
         {
-            CPP14Lexer.Identifier,
-            CPP14Lexer.LeftParen, CPP14Lexer.RightParen,
-            CPP14Lexer.Operator, CPP14Lexer.Star, CPP14Lexer.And, CPP14Lexer.AndAnd,
-            CPP14Lexer.LeftBracket,
-            CPP14Lexer.Ellipsis,
-            CPP14Lexer.Doublecolon, CPP14Lexer.Semi,
+            new Cpp14GrammarProvider(),
+            new TSqlGrammarProvider(),
         };
 
-        private static readonly HashSet<int> PreferredRules = new HashSet<int>
-        {
-            CPP14Parser.RULE_classname, CPP14Parser.RULE_namespacename, CPP14Parser.RULE_idexpression,
-        };
+        private IGrammarProvider _grammar;
 
         public MainForm()
         {
-            Text = "C++ Autocomplete Demo (antlr4-c3)";
+            _grammar = Grammars[0];
+
+            Text = "Autocomplete Demo (antlr4-c3)";
             Width = 1000;
             Height = 700;
             StartPosition = FormStartPosition.CenterScreen;
@@ -41,18 +37,43 @@ namespace Antlr4C3.Demo
             {
                 Dock = DockStyle.Fill,
                 ColumnCount = 2,
-                RowCount = 2,
+                RowCount = 3,
                 Padding = new Padding(8),
             };
             layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 55f));
             layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 45f));
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 90f));
             layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 24f));
             layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100f));
 
-            var codeLabel = new Label { Text = "C++ code (move the caret to see completions)", AutoSize = true };
+            var grammarLabel = new Label { Text = "Grammar", AutoSize = true };
+            _grammarList = new ListBox
+            {
+                Dock = DockStyle.Fill,
+                IntegralHeight = false,
+                SelectionMode = SelectionMode.One,
+            };
+            _grammarList.Items.AddRange(Grammars);
+            _grammarList.SelectedIndex = 0;
+            _grammarList.SelectedIndexChanged += (s, e) => OnGrammarChanged();
+
+            var grammarPanel = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 2,
+            };
+            grammarPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 18f));
+            grammarPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100f));
+            grammarPanel.Controls.Add(grammarLabel, 0, 0);
+            grammarPanel.Controls.Add(_grammarList, 0, 1);
+            layout.Controls.Add(grammarPanel, 0, 0);
+            layout.SetColumnSpan(grammarPanel, 2);
+
+            _codeLabel = new Label { Text = "Code (move the caret to see completions)", AutoSize = true };
             var resultLabel = new Label { Text = "Autocomplete results at caret", AutoSize = true };
-            layout.Controls.Add(codeLabel, 0, 0);
-            layout.Controls.Add(resultLabel, 1, 0);
+            layout.Controls.Add(_codeLabel, 0, 1);
+            layout.Controls.Add(resultLabel, 1, 1);
 
             _codeBox = new TextBox
             {
@@ -77,8 +98,8 @@ namespace Antlr4C3.Demo
                 BackColor = System.Drawing.Color.FromArgb(245, 245, 245),
             };
 
-            layout.Controls.Add(_codeBox, 0, 1);
-            layout.Controls.Add(_resultBox, 1, 1);
+            layout.Controls.Add(_codeBox, 0, 2);
+            layout.Controls.Add(_resultBox, 1, 2);
 
             _statusLabel = new Label
             {
@@ -91,13 +112,24 @@ namespace Antlr4C3.Demo
             Controls.Add(layout);
             Controls.Add(_statusLabel);
 
-            _codeBox.Text = "class A {\r\npublic:\r\n  void test() {\r\n    \r\n  }\r\n};\r\n";
+            _codeBox.Text = _grammar.SampleCode;
 
             _codeBox.KeyUp += (s, e) => UpdateCompletions();
             _codeBox.MouseUp += (s, e) => UpdateCompletions();
             _codeBox.TextChanged += (s, e) => UpdateCompletions();
 
             Load += (s, e) => UpdateCompletions();
+        }
+
+        private void OnGrammarChanged()
+        {
+            if (_grammarList.SelectedItem is IGrammarProvider grammar)
+            {
+                _grammar = grammar;
+                _codeLabel.Text = _grammar.DisplayName + " code (move the caret to see completions)";
+                _codeBox.Text = _grammar.SampleCode;
+                UpdateCompletions();
+            }
         }
 
         private void UpdateCompletions()
@@ -107,28 +139,21 @@ namespace Antlr4C3.Demo
                 var code = _codeBox.Text;
                 int caret = _codeBox.SelectionStart;
 
-                var inputStream = new AntlrInputStream(code);
-                var lexer = new CPP14Lexer(inputStream);
-                lexer.RemoveErrorListeners();
-                var tokenStream = new CommonTokenStream(lexer);
-                var parser = new CPP14Parser(tokenStream);
-                parser.RemoveErrorListeners();
-
-                parser.translationunit();
+                var (parser, tokenStream) = _grammar.Parse(code);
 
                 int caretTokenIndex = FindCaretTokenIndex(tokenStream, caret);
 
                 var core = new CodeCompletionCore(parser)
                 {
-                    ignoredTokens = new HashSet<int>(IgnoredTokens),
-                    preferredRules = new HashSet<int>(PreferredRules),
+                    ignoredTokens = new HashSet<int>(_grammar.IgnoredTokens),
+                    preferredRules = new HashSet<int>(_grammar.PreferredRules),
                 };
 
                 var candidates = core.CollectCandidates(caretTokenIndex, null);
 
                 _resultBox.Text = FormatCandidates(candidates, parser);
                 _statusLabel.Text =
-                    $"Caret char: {caret}  |  Token index: {caretTokenIndex}  |  " +
+                    $"Grammar: {_grammar.DisplayName}  |  Caret char: {caret}  |  Token index: {caretTokenIndex}  |  " +
                     $"Tokens: {candidates.Tokens.Count}  |  Rules: {candidates.Rules.Count}";
             }
             catch (Exception ex)
@@ -167,7 +192,7 @@ namespace Antlr4C3.Demo
             return Math.Max(0, tokens.Count - 1);
         }
 
-        private static string FormatCandidates(CodeCompletionCore.CandidatesCollection candidates, CPP14Parser parser)
+        private static string FormatCandidates(CodeCompletionCore.CandidatesCollection candidates, Parser parser)
         {
             var vocabulary = parser.Vocabulary;
             var ruleNames = parser.RuleNames;
