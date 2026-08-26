@@ -20,6 +20,7 @@ namespace Antlr4C3.Demo
         {
             new Cpp14GrammarProvider(),
             new TSqlGrammarProvider(),
+            new SqliteGrammarProvider(),
         };
 
         private IGrammarProvider _grammar;
