@@ -18,4 +18,10 @@
 	<ProjectReference Include="..\..\src\Antlr4C3\Antlr4C3.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+	<None Update="Parser.cpp">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+  </ItemGroup>
+
 </Project>

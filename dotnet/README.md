@@ -17,8 +17,9 @@ preserving the same algorithm and structure (including `RuleWithStartToken`,
 dotnet/
 ├── Antlr4C3.slnx
 ├── src/Antlr4C3/            — core (CodeCompletionCore port)
-├── test/Antlr4C3.Tests/     — xUnit tests (ExprTest port)
-│   └── Grammar/             — Expr.g4 + the generated ANTLR parser
+├── test/Antlr4C3.Tests/     — xUnit tests (Expr, Whitebox, CPP14 ports)
+│   ├── Grammar/             — Expr.g4, Whitebox.g4, CPP14.g4 + generated parsers
+│   └── Parser.cpp           — fixture for the "real C++ file" test
 └── tools/                   — antlr-4.7.2-complete.jar (for parser regeneration)
 ```
 
@@ -34,12 +35,14 @@ dotnet build dotnet -c Release
 dotnet test dotnet
 ```
 
-The tests are a port of the Java `ExprTest` class. Important detail: the
-follow-sets cache (`followSetsByATN`) is static in the original source, and
-`GetFollowingTokens` filters `ignoredTokens`. As a result `TypicalExpressionTest`
-depends on `MostSimpleSetup` running first (in Java this is guaranteed by
-`@Order`). In .NET the ordering is enforced via `TestPriorityOrderer` +
-`[TestOrder(n)]`.
+The tests are a port of the TypeScript / Java test suites and cover three
+grammars: the simple expression grammar (`ExprTest`), the `Whitebox` grammar
+(`WhiteboxTest`, 8 follow-set scenarios), and the C++14 grammar (`Cpp14Test`,
+including a real C++ source file). Important detail: the follow-sets cache
+(`followSetsByATN`) is static in the original source, and `GetFollowingTokens`
+filters `ignoredTokens`. As a result `TypicalExpressionTest` depends on
+`MostSimpleSetup` running first (in Java this is guaranteed by `@Order`). In
+.NET the ordering is enforced via `TestPriorityOrderer` + `[TestOrder(n)]`.
 
 ### Regenerating the parser from the grammar
 
@@ -51,6 +54,8 @@ java -jar dotnet/tools/antlr-4.7.2-complete.jar -Dlanguage=CSharp `
   -o dotnet/test/Antlr4C3.Tests/Grammar `
   dotnet/test/Antlr4C3.Tests/Grammar/Expr.g4
 ```
+
+Repeat for `Whitebox.g4` and `CPP14.g4` (same options).
 
 ## Usage
 
