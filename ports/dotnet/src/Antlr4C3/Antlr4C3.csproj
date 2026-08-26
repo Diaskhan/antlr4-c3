@@ -11,7 +11,7 @@
 
   <ItemGroup>
 	<!-- ANTLR 4.7 runtime for .NET -->
-	<PackageReference Include="Antlr4.Runtime.Standard" Version="4.7.2" />
+	<PackageReference Include="Antlr4.Runtime.Standard" Version="4.13.1" />
   </ItemGroup>
 
 </Project>
