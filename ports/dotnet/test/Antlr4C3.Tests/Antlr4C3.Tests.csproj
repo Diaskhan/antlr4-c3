@@ -16,14 +16,7 @@
 
   <ItemGroup>
 	<ProjectReference Include="..\..\src\Antlr4C3\Antlr4C3.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-	<!-- Reuse the SQLite parser generated for the demo project -->
-	<Compile Include="..\..\app\Antlr4C3.Demo\Grammar\SQLiteLexer.cs" Link="Grammar\SQLiteLexer.cs" />
-	<Compile Include="..\..\app\Antlr4C3.Demo\Grammar\SQLiteParser.cs" Link="Grammar\SQLiteParser.cs" />
-	<Compile Include="..\..\app\Antlr4C3.Demo\Grammar\SQLiteParserListener.cs" Link="Grammar\SQLiteParserListener.cs" />
-	<Compile Include="..\..\app\Antlr4C3.Demo\Grammar\SQLiteParserBaseListener.cs" Link="Grammar\SQLiteParserBaseListener.cs" />
+	<ProjectReference Include="..\..\grammar\Antlr4C3.Generated\Antlr4C3.Generated.csproj" />
   </ItemGroup>
 
   <ItemGroup>

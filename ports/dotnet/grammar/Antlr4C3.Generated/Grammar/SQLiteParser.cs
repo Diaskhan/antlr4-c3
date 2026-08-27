@@ -19,7 +19,7 @@
 // Ambiguous reference in cref attribute
 #pragma warning disable 419
 
-namespace Antlr4C3.Demo.Grammar {
+namespace Antlr4C3.Grammars {
 using System;
 using System.IO;
 using System.Text;
@@ -14120,4 +14120,4 @@ public partial class SQLiteParser : Parser {
 
 
 }
-} // namespace Antlr4C3.Demo.Grammar
+} // namespace Antlr4C3.Grammars

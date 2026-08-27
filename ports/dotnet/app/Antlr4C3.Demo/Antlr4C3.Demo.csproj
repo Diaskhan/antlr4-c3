@@ -15,14 +15,7 @@
 
   <ItemGroup>
 	<ProjectReference Include="..\..\src\Antlr4C3\Antlr4C3.csproj" />
-  </ItemGroup>
-
-  <!-- Reuse the CPP14 parser generated for the test project -->
-  <ItemGroup>
-	<Compile Include="..\..\test\Antlr4C3.Tests\Grammar\CPP14Lexer.cs" Link="Grammar\CPP14Lexer.cs" />
-	<Compile Include="..\..\test\Antlr4C3.Tests\Grammar\CPP14Parser.cs" Link="Grammar\CPP14Parser.cs" />
-	<Compile Include="..\..\test\Antlr4C3.Tests\Grammar\CPP14Listener.cs" Link="Grammar\CPP14Listener.cs" />
-	<Compile Include="..\..\test\Antlr4C3.Tests\Grammar\CPP14BaseListener.cs" Link="Grammar\CPP14BaseListener.cs" />
+	<ProjectReference Include="..\..\grammar\Antlr4C3.Generated\Antlr4C3.Generated.csproj" />
   </ItemGroup>
 
 </Project>

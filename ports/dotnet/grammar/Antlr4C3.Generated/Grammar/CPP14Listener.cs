@@ -19,7 +19,7 @@
 // Ambiguous reference in cref attribute
 #pragma warning disable 419
 
-namespace Antlr4C3.Tests.Grammar {
+namespace Antlr4C3.Grammars {
 using Antlr4.Runtime.Misc;
 using IParseTreeListener = Antlr4.Runtime.Tree.IParseTreeListener;
 using IToken = Antlr4.Runtime.IToken;
@@ -2022,4 +2022,4 @@ public interface ICPP14Listener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitUserdefinedliteral([NotNull] CPP14Parser.UserdefinedliteralContext context);
 }
-} // namespace Antlr4C3.Tests.Grammar
+} // namespace Antlr4C3.Grammars

@@ -8,4 +8,7 @@
   <Folder Name="/app/">
     <Project Path="app/Antlr4C3.Demo/Antlr4C3.Demo.csproj" />
   </Folder>
+  <Folder Name="/grammar/">
+    <Project Path="grammar/Antlr4C3.Generated/Antlr4C3.Generated.csproj" />
+  </Folder>
 </Solution>

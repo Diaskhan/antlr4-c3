@@ -19,7 +19,7 @@
 // Ambiguous reference in cref attribute
 #pragma warning disable 419
 
-namespace Antlr4C3.Tests.Grammar {
+namespace Antlr4C3.Grammars {
 using System;
 using System.IO;
 using System.Text;
@@ -703,4 +703,4 @@ public partial class CPP14Lexer : Lexer {
 
 
 }
-} // namespace Antlr4C3.Tests.Grammar
+} // namespace Antlr4C3.Grammars

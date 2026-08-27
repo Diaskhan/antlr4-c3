@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Antlr4.Runtime;
-using CppGrammar = Antlr4C3.Tests.Grammar;
-using SqlGrammar = Antlr4C3.Demo.Grammar;
+using CppGrammar = Antlr4C3.Grammars;
+using SqlGrammar = Antlr4C3.Grammars;
 
 namespace Antlr4C3.Demo
 {
