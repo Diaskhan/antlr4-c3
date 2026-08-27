@@ -46,3 +46,10 @@ jspm_packages
 
 # OS stuff
 .DS_Store
+
+# Visual Studio
+.vs/
+
+# .NET build output
+[Bb]in/
+[Oo]bj/
