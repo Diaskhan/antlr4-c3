@@ -19,6 +19,14 @@
   </ItemGroup>
 
   <ItemGroup>
+	<!-- Reuse the SQLite parser generated for the demo project -->
+	<Compile Include="..\..\app\Antlr4C3.Demo\Grammar\SQLiteLexer.cs" Link="Grammar\SQLiteLexer.cs" />
+	<Compile Include="..\..\app\Antlr4C3.Demo\Grammar\SQLiteParser.cs" Link="Grammar\SQLiteParser.cs" />
+	<Compile Include="..\..\app\Antlr4C3.Demo\Grammar\SQLiteParserListener.cs" Link="Grammar\SQLiteParserListener.cs" />
+	<Compile Include="..\..\app\Antlr4C3.Demo\Grammar\SQLiteParserBaseListener.cs" Link="Grammar\SQLiteParserBaseListener.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
 	<None Update="Parser.cpp">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
