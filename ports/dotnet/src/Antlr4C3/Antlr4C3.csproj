@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	<TargetFramework>netstandard2.0</TargetFramework>
+	<LangVersion>latest</LangVersion>
+	<RootNamespace>Antlr4C3</RootNamespace>
+	<AssemblyName>Antlr4C3</AssemblyName>
+	<Nullable>disable</Nullable>
+	<Description>A code completion core implementation for ANTLR4 based parsers. .NET port of the Java antlr4-c3 library.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+	<!-- ANTLR 4.7 runtime for .NET -->
+	<PackageReference Include="Antlr4.Runtime.Standard" Version="4.13.1" />
+  </ItemGroup>
+
+</Project>
