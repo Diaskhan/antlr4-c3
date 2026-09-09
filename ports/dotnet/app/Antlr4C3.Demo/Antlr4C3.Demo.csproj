@@ -16,6 +16,7 @@
   <ItemGroup>
 	<ProjectReference Include="..\..\src\Antlr4C3\Antlr4C3.csproj" />
 	<ProjectReference Include="..\..\grammar\Antlr4C3.Generated\Antlr4C3.Generated.csproj" />
+	<ProjectReference Include="..\..\grammar\Antlr4C3.Generated.Sql\Antlr4C3.Generated.Sql.csproj" />
   </ItemGroup>
 
 </Project>

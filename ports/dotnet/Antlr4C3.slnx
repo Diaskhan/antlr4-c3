@@ -10,5 +10,6 @@
   </Folder>
   <Folder Name="/grammar/">
     <Project Path="grammar/Antlr4C3.Generated/Antlr4C3.Generated.csproj" />
+    <Project Path="grammar/Antlr4C3.Generated.Sql/Antlr4C3.Generated.Sql.csproj" />
   </Folder>
 </Solution>
