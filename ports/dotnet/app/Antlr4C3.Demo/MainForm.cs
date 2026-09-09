@@ -198,6 +198,18 @@ namespace Antlr4C3.Demo
             var ruleNames = parser.RuleNames;
             var sb = new StringBuilder();
 
+            sb.AppendLine("=== Suggested rules (" + candidates.Rules.Count + ") ===");
+            foreach (var kvp in candidates.Rules.OrderBy(k => RuleName(ruleNames, k.Key)))
+            {
+                sb.AppendLine($"  {RuleName(ruleNames, kvp.Key)}");
+                if (kvp.Value?.RuleList != null && kvp.Value.RuleList.Count > 0)
+                {
+                    string path = string.Join(" > ", kvp.Value.RuleList.Select(r => RuleName(ruleNames, r)));
+                    sb.AppendLine($"      path: {path}");
+                }
+            }
+
+            sb.AppendLine();
             sb.AppendLine("=== Suggested tokens (" + candidates.Tokens.Count + ") ===");
             foreach (var kvp in candidates.Tokens.OrderBy(k => DisplayTokenName(vocabulary, k.Key)))
             {
@@ -210,18 +222,6 @@ namespace Antlr4C3.Demo
                 else
                 {
                     sb.AppendLine($"  {name}");
-                }
-            }
-
-            sb.AppendLine();
-            sb.AppendLine("=== Suggested rules (" + candidates.Rules.Count + ") ===");
-            foreach (var kvp in candidates.Rules.OrderBy(k => RuleName(ruleNames, k.Key)))
-            {
-                sb.AppendLine($"  {RuleName(ruleNames, kvp.Key)}");
-                if (kvp.Value?.RuleList != null && kvp.Value.RuleList.Count > 0)
-                {
-                    string path = string.Join(" > ", kvp.Value.RuleList.Select(r => RuleName(ruleNames, r)));
-                    sb.AppendLine($"      path: {path}");
                 }
             }
 
